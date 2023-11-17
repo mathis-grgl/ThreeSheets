@@ -8,13 +8,18 @@ body {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
 .titre {
     font-size: 2rem;
     font-weight: bold;
     text-align: center;
-    margin: 0.5em 0;
+}
+
+.titre:link, .titre:hover, .titre:visited, .titre:active{
+    text-decoration: none;
+    color: #000;
 }
 
 .texte_intro {
