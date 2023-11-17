@@ -1,16 +1,14 @@
 {
-    "name": "ThreeSheets",
+    "name": "threesheets",
     "version": "0.0.1",
     "description": "Projet Web en DP",
-    "homepage": "",
-    "licence": "",
     "author": "Mathis GEORGEL, Quentin BELUCHE, Sandy GEHIN",
-    "type": "module",
-    "main": "serveur.js",
+    "main": "app.js",
     "scripts": {
-        "start": "node serveur.js"
+        "start": "node app.js"
     },
     "dependencies": {
+        "express": "^4.18.2",
         "mysql": "^2.18.1"
     }
 }

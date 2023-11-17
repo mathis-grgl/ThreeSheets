@@ -1,0 +1,44 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-image: url("../img/accueil.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.titre {
+    font-size: 2em;
+    font-weight: bold;
+    text-align: center;
+    margin: 0.5em 0;
+}
+
+.texte_intro {
+    font-size: 1.2em;
+    text-align: center;
+    margin: 0.5em 0;
+}
+
+.connexion {
+    text-align: center;
+    margin: 0.5em 0;
+}
+
+.connexion a:link, .connexion a:visited, .connexion a:active {
+    text-decoration: none;
+    color: #000;
+}
+
+.inscription {
+    text-align: center;
+    margin: 0.5em 0;
+}
+
+.inscription a:link, .inscription a:visited, .inscription a:active {
+    text-decoration: none;
+    color: #000;
+}
