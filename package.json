@@ -1,0 +1,16 @@
+{
+    "name": "mon-premier-serveur",
+    "version": "0.0.1",
+    "description": "Tests de nodejs et implémentation de serveurs simples.",
+    "homepage": "somewhere.that.i.used.to.know.com",
+    "licence": "MIT",
+    "author": "Mathis GEORGEL",
+    "type": "module",
+    "main": "serveur.js",
+    "scripts": {
+        "start": "node serveur.js"
+    },
+    "dependencies": {
+        "mime": "^3.0.0"
+    }
+}
