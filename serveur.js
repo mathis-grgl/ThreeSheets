@@ -4,6 +4,7 @@ import fs from "fs"; // Importez le module 'fs' pour la lecture des fichiers
 const server = createServer((request, response) => {
     // Vérifiez si la demande est pour la racine '/'
     if (request.url === '/' || request.url === '/index.html') {
+        
         // Utilisez fs pour lire le fichier index.html
         fs.readFile('index.html', (err, data) => {
             if (err) {
