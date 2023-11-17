@@ -1,10 +1,10 @@
 {
-    "name": "mon-premier-serveur",
+    "name": "ThreeSheets",
     "version": "0.0.1",
-    "description": "Tests de nodejs et implémentation de serveurs simples.",
-    "homepage": "somewhere.that.i.used.to.know.com",
-    "licence": "MIT",
-    "author": "Mathis GEORGEL",
+    "description": "Projet Web en DP",
+    "homepage": "",
+    "licence": "",
+    "author": "Mathis GEORGEL, Quentin BELUCHE, Sandy GEHIN",
     "type": "module",
     "main": "serveur.js",
     "scripts": {
