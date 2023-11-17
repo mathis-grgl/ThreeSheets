@@ -11,34 +11,40 @@ body {
 }
 
 .titre {
-    font-size: 2em;
+    font-size: 2rem;
     font-weight: bold;
     text-align: center;
     margin: 0.5em 0;
 }
 
 .texte_intro {
-    font-size: 1.2em;
+    font-size: 1.2rem;
     text-align: center;
     margin: 0.5em 0;
 }
 
 .connexion {
     text-align: center;
-    margin: 0.5em 0;
+    padding: 0.5rem;
+    background-color:coral;
+    border-radius: 5px;
+    border: 1px solid coral;
 }
 
-.connexion a:link, .connexion a:visited, .connexion a:active {
-    text-decoration: none;
-    color: #000;
+
+#inscription:hover, .connexion:hover{
+    transform: scale(1.1);
 }
 
 .inscription {
     text-align: center;
-    margin: 0.5em 0;
+    padding: 0.5rem;
+    background-color:cornflowerblue;
+    border-radius: 5px;
+    border: 1px solid cornflowerblue;
 }
 
-.inscription a:link, .inscription a:visited, .inscription a:active {
+.connexion:link, .connexion:visited, .connexion:active, .inscription:link, .inscription:visited, .inscription:active{
     text-decoration: none;
     color: #000;
 }
