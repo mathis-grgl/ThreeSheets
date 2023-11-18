@@ -25,7 +25,6 @@ body {
 .connexion_form label {
     font-size: 1.5rem;
     font-weight: bold;
-    margin-bottom: 20px;
 }
 
 .connexion_form input {
@@ -34,6 +33,7 @@ body {
     border-radius: 5px;
     padding: 5px;
     width: 200px;
+    margin-top: 10px;
 }
 
 .connexion_form input:focus {
@@ -48,4 +48,15 @@ body {
     padding: 10px;
     width: 200px;
     cursor: pointer;
+}
+
+.notyet:link, .notyet:hover, .notyet:visited, .notyet:active{
+    text-decoration: none;
+    color: #000;
+}
+
+#erreur {
+    color: red;
+    font-size: 1.2rem;
+    font-weight: bold;
 }

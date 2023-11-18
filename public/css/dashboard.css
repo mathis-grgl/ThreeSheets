@@ -1,0 +1,33 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+.titre {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.titre:link, .titre:hover, .titre:visited, .titre:active{
+    text-decoration: none;
+    color: #000;
+}
+
+.disconnect {
+    background-color: orange;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    width: 200px;
+    transition: transform 0.2s ease;
+}
+
+.disconnect:hover {
+    transform: scale(1.1);
+}
