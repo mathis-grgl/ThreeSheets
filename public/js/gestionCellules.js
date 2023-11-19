@@ -1,5 +1,3 @@
-
-
 // Écouteurs d'événements pour les boutons de la barre d'outils
 document.addEventListener('DOMContentLoaded', function () {
     const boldButton = document.querySelector('.toolbar .btn:nth-of-type(1)');
@@ -173,24 +171,69 @@ function nouveauFichier() {
     window.location.reload();
 }
 
-/* Ouvrir un fichier (non implémenté) */
+/* Ouvrir un fichier */
 function ouvrirFichier() {
+    // On simule un click sur le bouton d'upload de fichier
+    document.getElementById('fileInput').click();
+
+    // Fonction appelée lorsqu'un fichier est sélectionné
+    document.getElementById('fileInput').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        
+        const reader = new FileReader();
+
+        // On lit le fichier
+        reader.onload = function (e) {
+            // On récupère les données du fichier
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+
+            // Prenez la première feuille (sheet) par défaut
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+
+            // Convertissez la feuille en tableau de données
+            const dataFromXLSX = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+            // On remplit les cellules existantes avec les données XLSX
+            dataFromXLSX.forEach(function (rowData, rowIndex) {
+                rowData.forEach(function (cellData, cellIndex) {
+                    // On récupère la cellule equivalente à la cellule du fichier XLSX
+                    const cell = document.getElementById("cell_" + (rowIndex + 1).toString().replace(/\s/g, "") + "_" + (cellIndex + 1).toString().replace(/\s/g, ""));
+                    
+                    // On remplit la cellule avec les données de la cellule du fichier XLSX correspondante
+                    cell.textContent = cellData;
+                });
+            });
+        };
+
+        reader.readAsArrayBuffer(file);
+    });
 }
 
 /* Enregistre le fichier en format .xlsx (Enregistre mais avec les chiffres et les lettres) */
-function enregistrerFichier(){
+function enregistrerFichier() {
+    // On récupère les lignes du tableau
+    const rows = document.querySelectorAll('#myTable tbody tr');
 
-    // On récupère le tableau
-    const table = document.getElementById('myTable');
-    console.log(table);
+    const data = [];
+    // On parcourt chaque ligne du tableau
+    rows.forEach(row => {
+        const rowData = [];
+        // On récupère les cellules de données (td) de chaque ligne
+        const cells = row.querySelectorAll('td');
+        cells.forEach(cell => {
+            // On ajoute le texte de la cellule à rowData
+            rowData.push(cell.innerText);
+        });
+        // On ajoute rowData à data
+        data.push(rowData);
+    });
 
-    // On crée une copie du tableau
-    const tableCopy = table.cloneNode(true);
+    // On crée une feuille de calcul
+    const ws = XLSX.utils.aoa_to_sheet(data);
 
-    // On convertit le tableau en feuille de calcul
-    const ws = XLSX.utils.table_to_sheet(table, {cellStyles: true});
-
-    // On crée un nouveau fichier de classeur
+    // On crée un nouveau classeur
     const wb = XLSX.utils.book_new();
 
     // On ajoute la feuille de calcul au classeur

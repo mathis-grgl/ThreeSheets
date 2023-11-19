@@ -9,7 +9,22 @@
 <body>
     <a class="titre" href="index"><h1>ThreeSheets</h1></a>
     <h1>Dashboard</h1>
-    <button class="btn-new" onclick="window.location.href='/feuille'">Nouveau fichier</button>
+
+    <!-- Affichage des fichiers nouveau/existant -->
+    <div class="fichiers">
+        <div class="btn-new">
+            <img src="/img/icon_new.png" alt="" class="btn-icon" onclick="window.location.href='/feuille'">
+            <span class="btn-text">Nouveau fichier</span>
+        </div>   
+
+        <!-- Boutons pour combler le vide et avoir un apercu avec plusieurs fichiers => a remplacer plus tard en js par les fichiers présents sur le serveur -->
+        <div class="btn-new">
+            <img src="/img/icon.png" alt="" class="btn-icon" onclick="window.location.href='/feuille'">
+            <span class="btn-text">Fichier test affichage</span>
+            <span class="delete-icon">❌</span> <!-- Suppression possible que pour le createur du fichier (a faire) -->
+        </div>  
+    </div>
+        
     <p>Pseudo</p><p id="pseudo"></p>
     <button class="disconnect" onclick="window.location.href='/logout'">Se déconnecter</button>
     <script type="text/javascript" src="/js/dashboard.js"></script>

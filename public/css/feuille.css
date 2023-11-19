@@ -40,3 +40,24 @@ body {
 td[contenteditable="true"]:focus {
     outline: 2px solid lightblue; 
 }
+
+/* Style pour l'affichage des personnes connectées */
+.btn-account {
+    width: 40px;
+    height: 40px;
+    border-radius: 100px;
+    background-color: #007bff;
+    border: none;
+    transition: transform 0.2s ease;
+}
+
+/* Transition au survol */
+.btn-account:hover {
+    transform: scale(1.1);
+}
+
+.utilisateurs {
+    background-color: lightgrey; 
+    padding: 5px; 
+    border-radius: 100px;
+}

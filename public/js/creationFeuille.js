@@ -32,7 +32,7 @@ for (let i = 0; i <= numberOfColumns; i++) {
     // On récupère le tbody
     const tbody = document.querySelector('table#myTable tbody');
 
-    // On génère le tableau
+    // On génère la colonne de gauche avec les numéros de ligne
     for (let i = 0; i < numberOfRows; i++) {
 
         // On génère une ligne
