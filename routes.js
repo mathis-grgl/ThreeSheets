@@ -12,6 +12,11 @@ router.use("/index", (req, res) => {
     res.sendFile(__dirname + `/public/views/index.html`);
 });
 
+// Route pour la page d'accueil
+router.use("/feuille", (req, res) => { 
+    res.sendFile(__dirname + `/public/views/feuille.html`);
+});
+
 // Route pour la page de connexion
 router.use("/connexion", (req, res) => { 
     res.sendFile(__dirname + `/public/views/connexion.html`);

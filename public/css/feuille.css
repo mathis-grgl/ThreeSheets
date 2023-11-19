@@ -1,0 +1,42 @@
+/* Styles pour la feuille de calcul */
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+/* CSS pour ajuster la taille du color picker */
+#colorPicker {
+    width: 20px;
+    height: 17px;
+}
+
+/* Style pour le logo */
+.img-logo {
+    width: 50px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+/* Style pour l'en tete au dessus de la barre d'outils */
+.en-tete {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.toolbar {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+}
+
+/* Style pour la sélection de cellule */
+.selected-cell {
+    outline: 2px solid lightblue;
+}
+
+/* Bordure pour la sélection */
+td[contenteditable="true"]:focus {
+    outline: 2px solid lightblue; 
+}
