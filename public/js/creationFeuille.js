@@ -56,7 +56,7 @@ for (let i = 0; i <= numberOfColumns; i++) {
             }
 
             // On assigne un identifiant unique à chaque cellule
-            cell.id = `cell_${i}_${j}`;
+            cell.id = `cell_${i+1}_${j}`;
             cell.style.minWidth = '100px';
 
             // On ajoute la cellule à la ligne

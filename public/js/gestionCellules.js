@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // On récupère l'identifiant de la cellule cliquée
         idCell = cell.id;
 
-        const rowIndex = (cell.parentNode.rowIndex) -2; // Indice de colonne de la cellule cliquée
+        const rowIndex = (cell.parentNode.rowIndex) -1; // Indice de colonne de la cellule cliquée
         const columnIndex = cell.cellIndex; // Indice de la colonne de la cellule cliquée
         
         // On change la couleur de fond de la colonne de la cellule cliquée
@@ -85,6 +85,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Gras
     boldButton.addEventListener('click', function () {
+        console.log(idCell);
         // On met en gras la cellule cliquée si elle ne l'est pas sinon on enlève le gras
         if (document.getElementById(idCell).style.fontWeight === 'bold') {
             document.getElementById(idCell).style.fontWeight = 'normal';
@@ -187,7 +188,7 @@ function enregistrerFichier(){
     const tableCopy = table.cloneNode(true);
 
     // On convertit le tableau en feuille de calcul
-    const ws = XLSX.utils.table_to_sheet(table, {cellStyles: false});
+    const ws = XLSX.utils.table_to_sheet(table, {cellStyles: true});
 
     // On crée un nouveau fichier de classeur
     const wb = XLSX.utils.book_new();
