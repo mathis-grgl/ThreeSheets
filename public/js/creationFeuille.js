@@ -3,34 +3,65 @@ const numberOfColumns = 26;
 // Nombre de lignes
 const numberOfRows = 26;
 
-// On récupère le tbody
-const tbody = document.querySelector('table#myTable tbody');
+// On récupère le thead
+const thead = document.querySelector('table#myTable thead');
 
-// On génère le tableau
-for (let i = 0; i < numberOfRows; i++) {
-    const row = document.createElement('tr');
+// On génère la première ligne du tableau avec les lettres de A à Z
+const row = document.createElement('tr');
+for (let i = 0; i <= numberOfColumns; i++) {
+    const cell = document.createElement('th');
 
-    for (let j = 0; j <= numberOfColumns; j++) {
-        const cell = (i === 0 && j === 0) ? document.createElement('th') : document.createElement('td');
-
-        if (i === 0 && j !== 0) { // Première ligne avec les lettres
-            cell.textContent = String.fromCharCode(65 + j - 1);
-            cell.classList.add('table-secondary');
-            cell.classList.add('text-center');
-        } else if (j === 0 && i !== 0) { // Première colonne avec les chiffres
-            cell.textContent = i;
-            cell.classList.add('table-secondary');
-            cell.classList.add('text-center');
-        } else { // Les autres cellules
-            cell.contentEditable = false;
-        }
-
-        // On assigne un identifiant unique à chaque cellule
-        cell.id = `cell_${i}_${j}`;
-        cell.style.minWidth = '100px';
-
-        row.appendChild(cell);
+    if (i === 0) { // Première cellule vide
+        cell.textContent = '';
+        cell.id = "uselessCell"
+    } else { // Les autres cellules avec les lettres de A à Z
+        cell.textContent = String.fromCharCode(65 + i - 1);
+        cell.id = `cell_0_${i}`;
     }
 
-    tbody.appendChild(row);
-}
+    // On assigne un identifiant unique à chaque cellule
+    cell.classList.add('table-secondary');
+    cell.classList.add('text-center');
+
+    row.appendChild(cell);
+    }
+
+    // On ajoute la ligne au thead
+    thead.appendChild(row);
+
+    // On récupère le tbody
+    const tbody = document.querySelector('table#myTable tbody');
+
+    // On génère le tableau
+    for (let i = 0; i < numberOfRows; i++) {
+
+        // On génère une ligne
+        const row = document.createElement('tr');
+
+        // Pour chaque colonne, on génère les cellules
+        for (let j = 0; j <= numberOfColumns; j++) {
+            
+            // Si c'est la première colonne, on génère une cellule avec le numéro de ligne
+            const cell = (j === 0) ? document.createElement('th') : document.createElement('td');
+
+            // Première colonne avec les chiffres
+            if (j === 0) { 
+                cell.textContent = i;
+                cell.classList.add('table-secondary');
+                cell.classList.add('text-center');
+                                
+            // Les autres cellules
+            } else { 
+                cell.contentEditable = false;
+            }
+
+            // On assigne un identifiant unique à chaque cellule
+            cell.id = `cell_${i}_${j}`;
+            cell.style.minWidth = '100px';
+
+            // On ajoute la cellule à la ligne
+            row.appendChild(cell);
+        }
+
+        tbody.appendChild(row);
+    }

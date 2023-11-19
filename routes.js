@@ -13,8 +13,18 @@ router.use("/index", (req, res) => {
 });
 
 // Route pour la page d'accueil
-router.use("/feuille", (req, res) => { 
-    res.sendFile(__dirname + `/public/views/feuille.html`);
+router.use("/feuille", (req, res) => {
+    // Si l'utilisateur est connecté
+    if(req.session.log){
+
+        // On affiche la page de la feuille de calcul
+        res.sendFile(__dirname + `/public/views/feuille.html`);
+
+    } else{
+        // Sinon redirige vers la page de connexion
+        res.redirect('/connexion');
+    }
+    
 });
 
 // Route pour la page de connexion

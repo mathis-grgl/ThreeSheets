@@ -30,26 +30,32 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <!-- Menu déroulant -->
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Fichier
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="#">
-                                    <i class="bi-file-earmark-plus"></i>
-                                    Nouveau
-                                </a>
-                                <a class="dropdown-item" href="#">
-                                    <i class="bi-folder2-open"></i>
-                                    Ouvrir
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" onclick="window.location.href='/dashboard'">
-                                    <i class="bi-x-lg"></i>
-                                    Fermer
-                                </a>
+                                <div class="fichierBoutons">
+                                    <a class="dropdown-item" href="#" onclick="nouveauFichier()">
+                                        <i class="bi-file-earmark-plus"></i>
+                                        Nouveau
+                                    </a>
+                                    <a class="dropdown-item" href="#" onclick="ouvrirFichier()">
+                                        <i class="bi-folder2-open"></i>
+                                        Ouvrir
+                                    </a>
+                                    <a class="dropdown-item" href="#" onclick="enregistrerFichier()">
+                                        <i class="bi-save"></i>
+                                        Enregistrer
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="#" onclick="fermerFichier()">
+                                        <i class="bi-x-lg"></i>
+                                        Fermer
+                                    </a>
+                                </div>
                             </div>
                         </li>
                     </ul>
@@ -99,6 +105,7 @@
             </thead>
             <tbody>
                 <!-- On génère les cases verticales en javascript -->
+                <!-- On génère les cases en javascript -->
             </tbody>
         </table>
     </div>
@@ -110,5 +117,6 @@
 <!-- Script JavaScript personnalisé -->
 <script src="/js/creationFeuille.js"></script>
 <script src="/js/gestionCellules.js"></script>
+<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
 
 </html>
