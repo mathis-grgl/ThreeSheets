@@ -61,3 +61,22 @@ td[contenteditable="true"]:focus {
     padding: 5px; 
     border-radius: 100px;
 }
+
+/* Style pour le nom du fichier et le outon edit */
+.navbar-text {
+    display: flex;
+    flex-direction: row;
+}
+
+/* Style pour le nom du fichier */
+.edit-button {
+    margin-top: 1px;
+    margin-left: 5px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+/* Transition au survol */
+.edit-button:hover {
+    transform: scale(1.2);
+}

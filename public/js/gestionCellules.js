@@ -1,3 +1,31 @@
+//import { createFile } from './gestionBdd.js';
+
+const fileName = document.getElementById('file-name'); // Nom du fichier
+const editButton = document.querySelector('.edit-button'); // Bouton d'édition du nom du fichier
+let fileNameText = fileName.textContent; // Texte du nom du fichier
+
+// On ecoute le click sur le bouton d'edition du nom du fichier
+editButton.addEventListener('click', function() {
+    fileName.contentEditable = 'true'; // On active l'édition du nom du fichier
+    fileName.focus();
+});
+
+// On regarde si on appuie sur la touche entrée ou echap
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        // On désactive l'édition du nom du fichier
+        fileName.contentEditable = 'false';
+        fileNameText = fileName.textContent; // On récupère le nouveau nom du fichier
+    } else if (event.key === 'Escape') {
+        // On désactive l'édition du nom du fichier
+        fileName.contentEditable = 'false';
+
+        // Annuler les modifications et restaurer l'ancien texte
+        fileName.textContent = fileNameText; // Remplacer 'oldText' par le texte d'origine
+    }
+});
+
+
 // Écouteurs d'événements pour les boutons de la barre d'outils
 document.addEventListener('DOMContentLoaded', function () {
     const boldButton = document.querySelector('.toolbar .btn:nth-of-type(1)');
@@ -166,84 +194,204 @@ document.addEventListener('DOMContentLoaded', function () {
 
 /* Créer un nouveau fichier */
 function nouveauFichier() {
-
     // Recharge la page
     window.location.reload();
 }
 
-/* Ouvrir un fichier */
-function ouvrirFichier() {
+// Ouverture d'un fichier .xlsx avec ExcelJS
+async function ouvrirFichier() {
     // On simule un click sur le bouton d'upload de fichier
     document.getElementById('fileInput').click();
 
-    // Fonction appelée lorsqu'un fichier est sélectionné
+    // Écouteur pour le changement de fichier
     document.getElementById('fileInput').addEventListener('change', function (event) {
+        // On récupère le fichier
         const file = event.target.files[0];
         
+        // On crée un nouveau lecteur de fichier
         const reader = new FileReader();
 
-        // On lit le fichier
+        // Lorsque le fichier est chargé
         reader.onload = function (e) {
-            // On récupère les données du fichier
+            // On récupère le contenu du fichier
             const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
+            
+            // Créer un nouveau classeur ExcelJS
+            const workbook = new ExcelJS.Workbook();
 
-            // Prenez la première feuille (sheet) par défaut
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-
-            // Convertissez la feuille en tableau de données
-            const dataFromXLSX = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-            // On remplit les cellules existantes avec les données XLSX
-            dataFromXLSX.forEach(function (rowData, rowIndex) {
-                rowData.forEach(function (cellData, cellIndex) {
-                    // On récupère la cellule equivalente à la cellule du fichier XLSX
-                    const cell = document.getElementById("cell_" + (rowIndex + 1).toString().replace(/\s/g, "") + "_" + (cellIndex + 1).toString().replace(/\s/g, ""));
+            // Charger le fichier Excel
+            workbook.xlsx.load(data.buffer)
+                .then(() => {
+                    console.log('Fichier chargé avec ExcelJS');
                     
-                    // On remplit la cellule avec les données de la cellule du fichier XLSX correspondante
-                    cell.textContent = cellData;
+                    // On récupère la première feuille du classeur
+                    const firstSheet = workbook.getWorksheet(1);
+                    
+                     // On parcrout chaque cellule
+                     firstSheet.eachRow({ includeEmpty: false }, function (row, rowIndex) {
+                        row.eachCell(function (cell, cellIndex) {
+                            console.log('Style de la cellule :', argbToHex(cell.font.color.argb));
+
+                            // On récupère la cellule equivalente à la cellule du fichier XLSX (id => cell_rowIndex_cellIndex )
+                            const newCell = document.getElementById("cell_" + (rowIndex).toString().replace(/\s/g, "") + "_" + (cellIndex).toString().replace(/\s/g, ""));
+
+                            // On remplit la cellule avec les styles de la cellule du fichier XLSX correspondante
+                            newCell.textContent = cell.value;
+                            newCell.style.fontWeight = cell.font.bold ? 'bold' : 'normal';
+                            newCell.style.fontStyle = cell.font.italic ? 'italic' : 'normal';
+                            newCell.style.textDecoration = cell.font.underline ? 'underline' : 'none';
+                            newCell.style.color = cell.font.color ? argbToHex(cell.font.color.argb) : '#000000';
+                            newCell.style.backgroundColor = cell.fill.fgColor.argb ? argbToHex(cell.fill.fgColor.argb) : '#FFFFFF';
+                            newCell.classList.add(cell.alignment.horizontal === 'center' ? 'text-center' : cell.alignment.horizontal === 'right' ? 'text-end' : 'text-start');
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement du fichier avec ExcelJS :', error);
                 });
-            });
         };
 
+        // Lire le contenu du fichier
         reader.readAsArrayBuffer(file);
     });
 }
 
-/* Enregistre le fichier en format .xlsx (Enregistre mais avec les chiffres et les lettres) */
-function enregistrerFichier() {
-    // On récupère les lignes du tableau
-    const rows = document.querySelectorAll('#myTable tbody tr');
+// Conversion de notre tableau en fichier .xlsx
+async function createXLSXFile() {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const workbook = new ExcelJS.Workbook();
 
-    const data = [];
-    // On parcourt chaque ligne du tableau
-    rows.forEach(row => {
-        const rowData = [];
-        // On récupère les cellules de données (td) de chaque ligne
-        const cells = row.querySelectorAll('td');
-        cells.forEach(cell => {
-            // On ajoute le texte de la cellule à rowData
-            rowData.push(cell.innerText);
-        });
-        // On ajoute rowData à data
-        data.push(rowData);
+            // On crée une feuille de calcul
+            const sheet = workbook.addWorksheet('Feuille 1');
+
+            // On récupère le tableau
+            const rows = document.querySelectorAll('#myTable tbody tr');
+
+            // On parcourt chaque cellule
+            rows.forEach((row, rowIndex) => {
+                const cells = row.querySelectorAll('td');
+                cells.forEach((cell, cellIndex) => {
+                    // On récupère la cellule equivalente à la cellule du fichier XLSX
+                    const currentCell = sheet.getCell(rowIndex + 1, cellIndex + 1);
+
+                    // On change le texte de la cellule du fichier XLSX
+                    currentCell.value = cell.innerText;
+
+                    // On change la police de la cellule du fichier XLSX
+                    currentCell.font = {
+                        name: 'Arial',
+                        size: 12,
+                        color: { argb: (cell.style.color != "") ? rgbToHex(cell.style.color.toString()) : "FF000000" }, // si vide => Noir
+                        bold: cell.style.fontWeight === 'bold',
+                        italic: cell.style.fontStyle === 'italic',
+                        underline: cell.style.textDecoration === 'underline'
+                    };
+
+                    // On change l'alignement du texte de la cellule du fichier XLSX
+                    currentCell.alignment = {
+                        vertical: 'middle',
+                        horizontal: cell.classList.contains('text-center') ? 'center' : cell.classList.contains('text-end') ? 'right' : 'left'
+                    };
+
+                    // On change la couleur de fond de la cellule si elle n'est pas blanche sinon on la met en blanc dans le fichier XLSX
+                    currentCell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: (cell.style.backgroundColor != "") ? rgbToHex(cell.style.backgroundColor.toString()) : "FFFFFFFF" }, // si vide => Blanc
+                    };
+                });
+            });
+
+            // On met le fichier dans un buffer et on le convertit en blob
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+            resolve(blob);
+        } catch (error) {
+            reject(error);
+        }
     });
-
-    // On crée une feuille de calcul
-    const ws = XLSX.utils.aoa_to_sheet(data);
-
-    // On crée un nouveau classeur
-    const wb = XLSX.utils.book_new();
-
-    // On ajoute la feuille de calcul au classeur
-    XLSX.utils.book_append_sheet(wb, ws, "Feuille 1");
-
-    // On télécharge le fichier
-    XLSX.writeFile(wb, 'table.xlsx');
 }
 
+/* Enregistre le fichier en format .xlsx */
+async function telechargerFichier() {
+    // On crée le fichier
+    const blob = await createXLSXFile();
+    
+    // On enregistre le fichier sur notre pc
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileNameText,'.xlsx'; // Nom du fichier
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+}
+
+async function enregistrerFichier(){
+    // On crée le fichier et on l'enregistre sur le serveur
+    const blob = await createXLSXFile();
+
+    // On enregistre le fichier sur le serveur
+    enregistrerSurServeur(blob);
+}
+
+
 /* Ferme le fichier et redirige vers le dashboard */
-function fermerFichier(){
+async function fermerFichier(){
+    // On crée le fichier et on l'enregistre sur le serveur
+    const buffer = await createXLSXFile();
+
+    // On enregistre le fichier sur le serveur
+    enregistrerSurServeur(buffer);
+
     window.location.href = "/dashboard";
+}
+
+async function enregistrerSurServeur(blob) {
+    try {
+        // On crée un objet FormData avec le fichier xlsx
+        const formData = new FormData();
+        formData.append('file', blob, fileNameText+'.xlsx');
+
+        // Envoi du fichier au serveur
+        const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            console.log('Fichier enregistré sur le serveur !');
+        } else {
+            console.error('Erreur lors de l\'enregistrement du fichier sur le serveur.   Fichier : ', fileNameText+ ".xlsx");
+        }
+    } catch (error) {
+        console.error('Erreur lors de l\'envoi du fichier au serveur :', error);
+    }
+}
+
+
+// Convertit une valeur de couleur ARGB en hexadécimal
+function argbToHex(argbValue) {
+    // On extrait les valeurs de rouge, vert et bleu de l'ARGB
+    const red = parseInt(argbValue.substr(2, 2), 16);
+    const green = parseInt(argbValue.substr(4, 2), 16);
+    const blue = parseInt(argbValue.substr(6, 2), 16);
+
+    // On combine les valeurs RVB pour obtenir une couleur hexadécimale
+    const hexColor = `#${red.toString(16).padStart(2, '0')}${green.toString(16).padStart(2, '0')}${blue.toString(16).padStart(2, '0')}`;
+    return hexColor;
+}
+
+// Convertit une valeur de couleur RGB en hexadécimal
+function rgbToHex(rgb) {
+    // Sépare les valeurs de couleur (R, G, B) de la chaîne rgb()
+    const [r, g, b] = rgb.match(/\d+/g);
+
+    // Convertit les valeurs de couleur en hexadécimal
+    const hex = `FF${(+r).toString(16).padStart(2, '0')}${(+g).toString(16).padStart(2, '0')}${(+b).toString(16).padStart(2, '0')}`;
+
+    return hex.toUpperCase(); // Retourne la valeur en majuscules
 }
