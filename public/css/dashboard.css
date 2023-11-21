@@ -38,6 +38,12 @@ body {
     gap: 20px;
 }
 
+/* Style pour l'affichage des fichiers' */
+.fichiers-existants {
+    display: flex;
+    gap: 20px;
+}
+
 /* Style pour les bontons fichier */
 .btn-new {
     display: flex;

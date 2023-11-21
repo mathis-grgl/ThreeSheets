@@ -11,7 +11,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 
-<body>
+<body onload="setIdCreateur(); loadNameFile();" >
+    <!-- Récupération de l'id du créateur du fichier -->
+    <input type="hidden" id="idCreateur" value=""></input>
+
     <div class="en-tete d-flex align-items-center">
         <!-- Logo -->
         <img src="/img/icon.png" class="d-inline-block align-top img-logo" alt="Logo">

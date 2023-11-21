@@ -1,3 +1,31 @@
+// On set l'id du créateur dans la feuille de calcul
+async function setIdCreateur() {
+    // On récupère l'id du créateur
+    getIdCreateur()
+    .then(data => {
+        // On récupère l'idCreateur
+        const idCreateur = document.getElementById('idCreateur');
+
+        // On set l'id du créateur dans la feuille de calcul
+        idCreateur.value = data.idCreateur.idCompte;
+    })
+    .catch(error => {
+        console.error(error); // Gestion des erreurs
+    });
+
+}
+
+// On récupère l'id du créateur
+async function getIdCreateur(){
+    return fetch('/getIdCreateur')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur de réseau');
+            }
+            return response.json(); // Récupération des données de session au format JSON
+        });
+}
+
 // Nombre de colonnes
 const numberOfColumns = 26;
 // Nombre de lignes
@@ -24,44 +52,44 @@ for (let i = 0; i <= numberOfColumns; i++) {
     cell.classList.add('text-center');
 
     row.appendChild(cell);
-    }
+}
 
-    // On ajoute la ligne au thead
-    thead.appendChild(row);
+// On ajoute la ligne au thead
+thead.appendChild(row);
 
-    // On récupère le tbody
-    const tbody = document.querySelector('table#myTable tbody');
+// On récupère le tbody
+const tbody = document.querySelector('table#myTable tbody');
 
-    // On génère la colonne de gauche avec les numéros de ligne
-    for (let i = 0; i < numberOfRows; i++) {
+// On génère la colonne de gauche avec les numéros de ligne
+for (let i = 0; i < numberOfRows; i++) {
 
-        // On génère une ligne
-        const row = document.createElement('tr');
+    // On génère une ligne
+    const row = document.createElement('tr');
 
-        // Pour chaque colonne, on génère les cellules
-        for (let j = 0; j <= numberOfColumns; j++) {
-            
-            // Si c'est la première colonne, on génère une cellule avec le numéro de ligne
-            const cell = (j === 0) ? document.createElement('th') : document.createElement('td');
+    // Pour chaque colonne, on génère les cellules
+    for (let j = 0; j <= numberOfColumns; j++) {
 
-            // Première colonne avec les chiffres
-            if (j === 0) { 
-                cell.textContent = i;
-                cell.classList.add('table-secondary');
-                cell.classList.add('text-center');
-                                
+        // Si c'est la première colonne, on génère une cellule avec le numéro de ligne
+        const cell = (j === 0) ? document.createElement('th') : document.createElement('td');
+
+        // Première colonne avec les chiffres
+        if (j === 0) {
+            cell.textContent = i;
+            cell.classList.add('table-secondary');
+            cell.classList.add('text-center');
+
             // Les autres cellules
-            } else { 
-                cell.contentEditable = false;
-            }
-
-            // On assigne un identifiant unique à chaque cellule
-            cell.id = `cell_${i+1}_${j}`;
-            cell.style.minWidth = '100px';
-
-            // On ajoute la cellule à la ligne
-            row.appendChild(cell);
+        } else {
+            cell.contentEditable = false;
         }
 
-        tbody.appendChild(row);
+        // On assigne un identifiant unique à chaque cellule
+        cell.id = `cell_${i + 1}_${j}`;
+        cell.style.minWidth = '100px';
+
+        // On ajoute la cellule à la ligne
+        row.appendChild(cell);
     }
+
+    tbody.appendChild(row);
+}

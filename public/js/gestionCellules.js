@@ -1,5 +1,3 @@
-//import { createFile } from './gestionBdd.js';
-
 const fileName = document.getElementById('file-name'); // Nom du fichier
 const editButton = document.querySelector('.edit-button'); // Bouton d'édition du nom du fichier
 let fileNameText = fileName.textContent; // Texte du nom du fichier
@@ -100,7 +98,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // On change la couleur de fond de la ligne de la cellule cliquée
         document.getElementById("cell_0_" + columnIndex.toString().replace(/\s/g, "")).style.backgroundColor = 'lightblue';
-        console.log("v index : " + rowIndex + " -> index : " + columnIndex);
     }
 
     function enterCell(cell) {
@@ -111,38 +108,37 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Gras
     boldButton.addEventListener('click', function () {
-        console.log(idCell);
+        // On récupère la cellule cliquée
+        const cell = document.getElementById(idCell);
+
         // On met en gras la cellule cliquée si elle ne l'est pas sinon on enlève le gras
-        if (document.getElementById(idCell).style.fontWeight === 'bold') {
-            document.getElementById(idCell).style.fontWeight = 'normal';
-        } else {
-            document.getElementById(idCell).style.fontWeight = 'bold';
-        }
+        (cell.style.fontWeight === 'bold') ? cell.style.fontWeight = 'normal' : cell.style.fontWeight = 'bold';
     });
 
     //  Italique
     italicButton.addEventListener('click', function () {
+        // On récupère la cellule cliquée
+        const cell = document.getElementById(idCell);
+
         // On met en italique la cellule cliquée si elle ne l'est pas sinon on enlève l'italique
-        if (document.getElementById(idCell).style.fontStyle === 'italic') {
-            document.getElementById(idCell).style.fontStyle = 'normal';
-        } else {
-            document.getElementById(idCell).style.fontStyle = 'italic';
-        }
+        (cell.style.fontStyle === 'italic') ? cell.style.fontStyle = 'normal' : cell.style.fontStyle = 'italic';
     });
 
     // Souligner
     underlineButton.addEventListener('click', function () {
+        // On récupère la cellule cliquée
+        const cell = document.getElementById(idCell);
+
         // On souligne la cellule cliquée si elle ne l'est pas sinon on enlève le soulignement
-        if (document.getElementById(idCell).style.textDecoration === 'underline') {
-            document.getElementById(idCell).style.textDecoration = 'none';
-        } else {
-            document.getElementById(idCell).style.textDecoration = 'underline';
-        }
+        (cell.style.textDecoration === 'underline') ? cell.style.textDecoration = 'none' : cell.style.textDecoration = 'underline';
     });
 
     // Aligner à gauche
     textAlignmentLeftButton.addEventListener('click', function () {
+        // On récupère la cellule cliquée
         const cell = document.getElementById(idCell);
+
+        // On aligne à gauche la cellule cliquée si elle ne l'est pas sinon on enlève l'alignement
         if (!cell.classList.contains("text-start")) {
             cell.classList.add("text-start");
             cell.classList.remove("text-center", "text-end");
@@ -151,7 +147,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Aligner au centre
     textAlignmentCenterButton.addEventListener('click', function () {
+        // On récupère la cellule cliquée
         const cell = document.getElementById(idCell);
+
+        // On aligne au centre la cellule cliquée si elle ne l'est pas sinon on enlève l'alignement
         if (!cell.classList.contains("text-center")) {
             cell.classList.add("text-center");
             cell.classList.remove("text-start", "text-end");
@@ -160,7 +159,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Aligner à droite
     textAlignmentRightButton.addEventListener('click', function () {
+        // On récupère la cellule cliquée
         const cell = document.getElementById(idCell);
+
+        // On aligne à droite la cellule cliquée si elle ne l'est pas sinon on enlève l'alignement
         if (!cell.classList.contains("text-end")) {
             cell.classList.add("text-end");
             cell.classList.remove("text-start", "text-center");
@@ -169,26 +171,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Changer la couleur de fond par rapport au colorpicker
     backgroundColorText.addEventListener('change', function (event) {
+        // On récupère la cellule cliquée
+        const cell = document.getElementById(idCell);
+
+        // On recupere la couleur selectionnée
         const selectedColor = event.target.value;
 
         // On change la couleur de fond de la cellule cliquée si elle est blanche sinon on la met en blanc
-        if (document.getElementById(idCell).style.backgroundColor != "white") {
-            document.getElementById(idCell).style.backgroundColor = selectedColor;
-        } else {
-            document.getElementById(idCell).style.backgroundColor = 'white';
-        }
+        (cell.style.backgroundColor != "white") ? cell.style.backgroundColor = selectedColor : cell.style.backgroundColor = "white";
     });
 
     // Changer la couleur de texte par rapport au colorpicker
     backgroundColorCell.addEventListener('change', function (event) {
+        // On récupère la cellule cliquée
+        const cell = document.getElementById(idCell);
+
+        // On recupere la couleur selectionnée
         const selectedColor = event.target.value;
 
         // On change la couleur de fond de la cellule cliquée si elle est blanche sinon on la met en blanc
-        if (document.getElementById(idCell).style.color != "white") {
-            document.getElementById(idCell).style.color = selectedColor;
-        } else {
-            document.getElementById(idCell).style.color = 'white';
-        }
+        (cell.style.color != "white") ? cell.style.color = selectedColor : cell.style.color = "white";
     });
 });
 
@@ -208,52 +210,60 @@ async function ouvrirFichier() {
         // On récupère le fichier
         const file = event.target.files[0];
         
-        // On crée un nouveau lecteur de fichier
-        const reader = new FileReader();
-
-        // Lorsque le fichier est chargé
-        reader.onload = function (e) {
-            // On récupère le contenu du fichier
-            const data = new Uint8Array(e.target.result);
-            
-            // Créer un nouveau classeur ExcelJS
-            const workbook = new ExcelJS.Workbook();
-
-            // Charger le fichier Excel
-            workbook.xlsx.load(data.buffer)
-                .then(() => {
-                    console.log('Fichier chargé avec ExcelJS');
-                    
-                    // On récupère la première feuille du classeur
-                    const firstSheet = workbook.getWorksheet(1);
-                    
-                     // On parcrout chaque cellule
-                     firstSheet.eachRow({ includeEmpty: false }, function (row, rowIndex) {
-                        row.eachCell(function (cell, cellIndex) {
-                            console.log('Style de la cellule :', argbToHex(cell.font.color.argb));
-
-                            // On récupère la cellule equivalente à la cellule du fichier XLSX (id => cell_rowIndex_cellIndex )
-                            const newCell = document.getElementById("cell_" + (rowIndex).toString().replace(/\s/g, "") + "_" + (cellIndex).toString().replace(/\s/g, ""));
-
-                            // On remplit la cellule avec les styles de la cellule du fichier XLSX correspondante
-                            newCell.textContent = cell.value;
-                            newCell.style.fontWeight = cell.font.bold ? 'bold' : 'normal';
-                            newCell.style.fontStyle = cell.font.italic ? 'italic' : 'normal';
-                            newCell.style.textDecoration = cell.font.underline ? 'underline' : 'none';
-                            newCell.style.color = cell.font.color ? argbToHex(cell.font.color.argb) : '#000000';
-                            newCell.style.backgroundColor = cell.fill.fgColor.argb ? argbToHex(cell.fill.fgColor.argb) : '#FFFFFF';
-                            newCell.classList.add(cell.alignment.horizontal === 'center' ? 'text-center' : cell.alignment.horizontal === 'right' ? 'text-end' : 'text-start');
-                        });
-                    });
-                })
-                .catch(error => {
-                    console.error('Erreur lors du chargement du fichier avec ExcelJS :', error);
-                });
-        };
-
-        // Lire le contenu du fichier
-        reader.readAsArrayBuffer(file);
+        // On charge le fichier dans notre tableau
+        chargerFichier(file);
     });
+}
+
+// Charger un fichier .xlsx avec ExcelJS
+function chargerFichier(file) {
+    // On crée un nouveau lecteur de fichier
+    const reader = new FileReader();
+
+    // Lorsque le fichier est chargé
+    reader.onload = function (e) {
+        // On récupère le contenu du fichier
+        const data = new Uint8Array(e.target.result);
+        
+        // Créer un nouveau classeur ExcelJS
+        const workbook = new ExcelJS.Workbook();
+
+        // Charger le fichier Excel
+        workbook.xlsx.load(data.buffer)
+            .then(() => {
+                const fileName = document.getElementById('file-name'); // Nom du fichier
+                fileName.textContent = file.name.replace(".xlsx", ""); // On change le nom du fichier
+                fileNameText = file.name.replace(".xlsx", ""); // On change le nom du fichier de base
+
+                console.log('Fichier chargé avec ExcelJS');
+                
+                // On récupère la première feuille du classeur
+                const firstSheet = workbook.getWorksheet(1);
+                
+                 // On parcrout chaque cellule
+                 firstSheet.eachRow({ includeEmpty: false }, function (row, rowIndex) {
+                    row.eachCell(function (cell, cellIndex) {
+                        // On récupère la cellule equivalente à la cellule du fichier XLSX (id => cell_rowIndex_cellIndex )
+                        const newCell = document.getElementById("cell_" + (rowIndex).toString().replace(/\s/g, "") + "_" + (cellIndex).toString().replace(/\s/g, ""));
+
+                        // On remplit la cellule avec les styles de la cellule du fichier XLSX correspondante
+                        newCell.textContent = cell.value;
+                        newCell.style.fontWeight = cell.font.bold ? 'bold' : 'normal';
+                        newCell.style.fontStyle = cell.font.italic ? 'italic' : 'normal';
+                        newCell.style.textDecoration = cell.font.underline ? 'underline' : 'none';
+                        newCell.style.color = cell.font.color ? argbToHex(cell.font.color.argb) : '#000000';
+                        newCell.style.backgroundColor = cell.fill.fgColor.argb ? argbToHex(cell.fill.fgColor.argb) : '#FFFFFF';
+                        newCell.classList.add(cell.alignment.horizontal === 'center' ? 'text-center' : cell.alignment.horizontal === 'right' ? 'text-end' : 'text-start');
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('Erreur lors du chargement du fichier avec ExcelJS :', error);
+            });
+    };
+
+    // Lire le contenu du fichier
+    reader.readAsArrayBuffer(file);
 }
 
 // Conversion de notre tableau en fichier .xlsx
@@ -345,11 +355,13 @@ async function fermerFichier(){
     const buffer = await createXLSXFile();
 
     // On enregistre le fichier sur le serveur
-    enregistrerSurServeur(buffer);
+    //enregistrerSurServeur(buffer); // marche pas car reecrée un meme fichier
 
     window.location.href = "/dashboard";
 }
 
+
+// Enregistre le fichier sur le serveur
 async function enregistrerSurServeur(blob) {
     try {
         // On crée un objet FormData avec le fichier xlsx
@@ -364,6 +376,15 @@ async function enregistrerSurServeur(blob) {
 
         if (response.ok) {
             console.log('Fichier enregistré sur le serveur !');
+
+            // On récupère l'id du créateur
+            const idCreateur = document.getElementById('idCreateur').value;
+
+            // On récupère le titre du document
+            const titre = document.getElementById('file-name').textContent;
+
+            // On crée le document dans la db
+            await createDocumentInDb(titre, idCreateur);
         } else {
             console.error('Erreur lors de l\'enregistrement du fichier sur le serveur.   Fichier : ', fileNameText+ ".xlsx");
         }
@@ -372,6 +393,74 @@ async function enregistrerSurServeur(blob) {
     }
 }
 
+// Crée un document dans la base de données
+async function createDocumentInDb(titre, idCreateur) {
+    const requestData = {
+        titre: titre,
+        idCreateur: idCreateur
+    };
+
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+    };
+
+    try {
+        const response = await fetch('/create', requestOptions);
+        if (!response.ok) {
+            throw new Error('Erreur lors de la création du document');
+        }
+        const responseData = await response.text();
+        console.log(responseData); // Afficher la réponse du serveur
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+// On récupère le nom du fichier par son id
+async function loadNameFile() {
+    // On récupère l'id du document dans l'url
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const idDocument = urlParams.get('idDocument');
+
+    // On récupère le titre du document si il y a un id en paramètre
+    if (idDocument) {
+        try {
+            const response = await fetch(`/getFileById/${idDocument}`);
+            if (!response.ok) {
+                throw new Error('Erreur de réseau');
+            }
+
+            // Récupération des données JSON renvoyées par le serveur
+            const data = await response.json();
+            const titre = data.titre;
+            const url = `/files/${titre}.xlsx`;
+
+            // Effectuer une requête pour récupérer le fichier
+            const fileResponse = await fetch(url);
+            if (!fileResponse.ok) {
+                throw new Error('Erreur lors de la récupération du fichier');
+            }
+
+            // Récupération du blob
+            const blob = await fileResponse.blob();
+            const file = new File([blob], titre + '.xlsx', { type: blob.type });
+            
+            // Appel de la fonction pour charger le fichier
+            chargerFichier(file);
+
+            // Affichage du titre du document
+            const titreElement = document.getElementById('file-name');
+            titreElement.textContent = titre;
+        } catch (error) {
+            console.error(error); // Gestion des erreurs
+        }
+    }
+}
 
 // Convertit une valeur de couleur ARGB en hexadécimal
 function argbToHex(argbValue) {
