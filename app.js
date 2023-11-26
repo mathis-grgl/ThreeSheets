@@ -80,7 +80,7 @@ app.post("/edit", (req, res) => {
 app.post("/create", (req, res) => {
     db.createFile(req.body.titre, req.body.idCreateur, (err) => {
         if (err) throw err;
-        res.status(200).send('Document créé avec succès !');
+        res.status(200).send('Document créé/modifié avec succès !');
     });
 });
 

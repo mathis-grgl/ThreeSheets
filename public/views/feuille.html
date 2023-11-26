@@ -11,7 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 
-<body onload="setIdCreateur(); loadNameFile();" >
+<body onload="setIdCreateur(); loadNameFile();">
     <!-- Récupération de l'id du créateur du fichier -->
     <input type="hidden" id="idCreateur" value=""></input>
 
@@ -78,16 +78,22 @@
         <!-- Utilisateurs connectés => test d'affichage, à modifier en js pour afficher seulement les gens en train de modifier la feuille actuelle -->
         <div class="ms-auto utilisateurs">
             <i class="bi bi-people"></i>
-            <button class="btn-account" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                <span data-bs-html="true" data-bs-toggle="popover" data-bs-placement="bottom" title="Informations" data-bs-content='Sandy Gehin<br>sandy.gehin@gmail.com'>SG</span>
+            <button class="btn-account" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                <span data-bs-html="true" data-bs-toggle="popover" data-bs-placement="bottom" title="Informations"
+                    data-bs-content='Sandy Gehin<br>sandy.gehin@gmail.com'>SG</span>
             </button>
 
-            <button class="btn-account" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                <span data-bs-html="true" data-bs-toggle="popover" data-bs-placement="bottom" title="Informations" data-bs-content='Mathis Georgel<br>mathis.georgel@gmail.com'>MG</span>
+            <button class="btn-account" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                <span data-bs-html="true" data-bs-toggle="popover" data-bs-placement="bottom" title="Informations"
+                    data-bs-content='Mathis Georgel<br>mathis.georgel@gmail.com'>MG</span>
             </button>
 
-            <button class="btn-account" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                <span data-bs-html="true" data-bs-toggle="popover" data-bs-placement="bottom" title="Informations" data-bs-content='Quentin Beluche<br>quentin.beluche@gmail.com'>QB</span>
+            <button class="btn-account" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                <span data-bs-html="true" data-bs-toggle="popover" data-bs-placement="bottom" title="Informations"
+                    data-bs-content='Quentin Beluche<br>quentin.beluche@gmail.com'>QB</span>
             </button>
         </div>
     </div>
@@ -146,14 +152,16 @@
     </div>
 
     <!-- Toast pour afficher un message en cas d'erreur/succès pour l'enregistrement, chargement, ... -->
-    <div id="alert" class="toast align-items-center border-0 position-fixed top-0 start-50 translate-middle-x mt-4" role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="alert" class="toast align-items-center border-0 position-fixed top-0 start-50 translate-middle-x mt-4"
+        role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
             <div class="toast-body">
                 <!-- Message à mettre en js -->
             </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                aria-label="Close"></button>
         </div>
-    </div>    
+    </div>
 </body>
 
 <!-- Bootstrap JavaScript -->
@@ -162,9 +170,8 @@
     crossorigin="anonymous"></script>
 
 <!-- Script pour charger ExcelJS via CDN -->
-<script 
-    src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js" 
-    integrity="sha512-UnrKxsCMN9hFk7M56t4I4ckB4N/2HHi0w/7+B/1JsXIX3DmyBcsGpT3/BsuZMZf+6mAr0vP81syWtfynHJ69JA==" 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"
+    integrity="sha512-UnrKxsCMN9hFk7M56t4I4ckB4N/2HHi0w/7+B/1JsXIX3DmyBcsGpT3/BsuZMZf+6mAr0vP81syWtfynHJ69JA=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 
@@ -172,6 +179,7 @@
 <script src="/js/creationFeuille.js"></script>
 <script src="/js/gestionCellules.js"></script>
 <script src="/js/gestionUtilisateurs.js"></script>
+<script src="/js/gestionFichier.js"></script>
 <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
 
 </html>
