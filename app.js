@@ -129,9 +129,6 @@ app.delete("/delete/:id", (req, res) => {
             const sessionData = req.session;
             db.getIdByEmail(sessionData.email, (err, compte) => {
                 if (err) throw err;
-
-                console.log("ID : ", file.idCreateur, " -- ", sessionData.email, " -- ", compte.idCompte);
-
                 // Si l'id du créateur du document est différent de l'id du compte connecté alors on peut pas supprimer le document
                 if (file.idCreateur !== compte.idCompte) {
                     res.status(403).send('Vous n\'êtes pas autorisé à supprimer ce document');

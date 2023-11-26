@@ -256,9 +256,14 @@ function chargerFichier(file) {
                         newCell.classList.add(cell.alignment.horizontal === 'center' ? 'text-center' : cell.alignment.horizontal === 'right' ? 'text-end' : 'text-start');
                     });
                 });
+
+                // Afficher une alerte de succès
+                afficherToast("Fichier chargé avec succès !", 'success');
             })
             .catch(error => {
                 console.error('Erreur lors du chargement du fichier avec ExcelJS :', error);
+                // Afficher une alerte de succès
+                afficherToast(error, 'danger');
             });
     };
 
@@ -324,7 +329,7 @@ async function createXLSXFile() {
     });
 }
 
-/* Enregistre le fichier en format .xlsx */
+/* Télécharge le fichier en format .xlsx */
 async function telechargerFichier() {
     // On crée le fichier
     const blob = await createXLSXFile();
@@ -340,6 +345,7 @@ async function telechargerFichier() {
     window.URL.revokeObjectURL(url);
 }
 
+/* Enregistre le fichier sur le serveur et dans la db */
 async function enregistrerFichier(){
     // On crée le fichier et on l'enregistre sur le serveur
     const blob = await createXLSXFile();
@@ -348,22 +354,23 @@ async function enregistrerFichier(){
     enregistrerSurServeur(blob);
 }
 
-
 /* Ferme le fichier et redirige vers le dashboard */
 async function fermerFichier(){
-    // On crée le fichier et on l'enregistre sur le serveur
-    const buffer = await createXLSXFile();
-
-    // On enregistre le fichier sur le serveur
-    //enregistrerSurServeur(buffer); // marche pas car reecrée un meme fichier
-
     window.location.href = "/dashboard";
 }
-
 
 // Enregistre le fichier sur le serveur
 async function enregistrerSurServeur(blob) {
     try {
+        // Si le titre est "Nouvelle Feuille", on génére un identifiant aléatoire de 7 caractères
+        if (fileNameText === "Nouvelle feuille") {
+            const randomId = Math.random().toString(36).substring(7);
+
+            // On change le nom du fichier
+            fileNameText = fileNameText + `-${randomId}`;
+            fileName.textContent = fileNameText;
+        }
+
         // On crée un objet FormData avec le fichier xlsx
         const formData = new FormData();
         formData.append('file', blob, fileNameText+'.xlsx');
@@ -386,20 +393,45 @@ async function enregistrerSurServeur(blob) {
             // On crée le document dans la db
             await createDocumentInDb(titre, idCreateur);
         } else {
-            console.error('Erreur lors de l\'enregistrement du fichier sur le serveur.   Fichier : ', fileNameText+ ".xlsx");
+            // Afficher une alerte d'erreur
+            afficherAlerte("Erreur lors de l\'enregistrement du fichier sur le serveur.", 'danger');
         }
     } catch (error) {
-        console.error('Erreur lors de l\'envoi du fichier au serveur :', error);
+        // Afficher une alerte d'erreur
+        afficherAlerte("Erreur lors de l\'envoi du fichier sur le serveur.", 'danger');
     }
 }
 
-// Crée un document dans la base de données
+// Affichage d'un tosat pour les erreus, messages, ...
+function afficherToast(message, type) {
+    // On récupère le toast et on l'affiche avec le message en paramètre
+    const alertDiv = document.getElementById('alert');
+    alertDiv.querySelector(".toast-body").textContent = message;
+
+    // On change la couleur de fond du toast en fonction du type de message (success, danger)
+    alertDiv.classList.add(`text-bg-${type}`);
+
+    // Création de l'objet Toast à partir de l'élément récupéré
+    const alert = new bootstrap.Toast(alertDiv);
+
+    // Affichage du toast
+    alert.show();
+
+    // Supprime l'alerte après 3 secondes
+    setTimeout(() => {
+        alert.hide();
+    }, 3000); 
+}
+
+// Créer un document dans la base de données
 async function createDocumentInDb(titre, idCreateur) {
+    // On crée un objet avec les données à envoyer
     const requestData = {
         titre: titre,
         idCreateur: idCreateur
     };
 
+    // On crée les options de la requête
     const requestOptions = {
         method: 'POST',
         headers: {
@@ -409,14 +441,20 @@ async function createDocumentInDb(titre, idCreateur) {
     };
 
     try {
+        // On envoie la requête au serveur
         const response = await fetch('/create', requestOptions);
         if (!response.ok) {
             throw new Error('Erreur lors de la création du document');
         }
+
+        // On récupère les données renvoyées par le serveur
         const responseData = await response.text();
-        console.log(responseData); // Afficher la réponse du serveur
+        
+        // Afficher une alerte de succès
+        afficherToast(responseData, 'success');
     } catch (error) {
-        console.error(error);
+        // Afficher une alerte d'erreur
+        afficherAlerte(error.message || 'Erreur inconnue', 'danger');
     }
 }
 

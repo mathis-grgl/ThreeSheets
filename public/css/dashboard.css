@@ -3,7 +3,6 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 50vh;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
@@ -34,14 +33,7 @@ body {
 
 /* Style pour l'affichage des fichiers' */
 .fichiers {
-    display: flex;
-    gap: 20px;
-}
-
-/* Style pour l'affichage des fichiers' */
-.fichiers-existants {
-    display: flex;
-    gap: 20px;
+    padding-bottom: 20px;
 }
 
 /* Style pour les bontons fichier */

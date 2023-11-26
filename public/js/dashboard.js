@@ -18,6 +18,7 @@ async function afficherDocuments() {
         documents.forEach((doc) => {
             // On génère le div global
             const newDiv = document.createElement('div');
+            newDiv.classList.add("col");
             newDiv.classList.add('btn-new');
 
             // On génère l'icône
@@ -57,10 +58,37 @@ async function supprimerDocument(idDocument) {
             method: 'DELETE'
         });
         if (!response.ok) {
-            throw new Error('Erreur lors de la suppression du document');
+            throw new Error(await response.text());
         }
-        afficherDocuments(); // Actualiser la liste des documents après la suppression
+
+        // On affiche un toast pour confirmer la suppression
+        afficherToast('Document supprimé avec succès !', 'success');
+
+        afficherDocuments(); // On actualise la liste des documents après la suppression
     } catch (error) {
-        console.error(error);
+        // On affiche un toast avec le message d'erreur
+        const modalMessage = error.message || 'Erreur inconnue';
+        afficherToast(modalMessage, 'danger');
     }
+}
+
+// Affichage d'un tosat pour les erreus, messages, ...
+function afficherToast(message, type) {
+    // On récupère le toast et on l'affiche avec le message en paramètre
+    const alertDiv = document.getElementById('alert');
+    alertDiv.querySelector(".toast-body").textContent = message;
+
+    // On change la couleur de fond du toast en fonction du type de message (success, danger)
+    alertDiv.classList.add(`text-bg-${type}`);
+
+    // Création de l'objet Toast à partir de l'élément récupéré
+    const alert = new bootstrap.Toast(alertDiv);
+
+    // Affichage du toast
+    alert.show();
+
+    // Supprime l'alerte après 3 secondes
+    setTimeout(() => {
+        alert.hide();
+    }, 3000); 
 }
