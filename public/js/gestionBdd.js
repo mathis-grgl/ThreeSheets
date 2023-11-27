@@ -8,6 +8,14 @@ function createUser(email, motDePasse, pseudo, callback) {
     db.run('INSERT INTO compte (email, mdp, pseudo) VALUES (?, ?, ?)', [email, motDePasse, pseudo], callback);
 }
 
+function getUserByEmail(email, callback) {
+    db.get('SELECT idCompte, pseudo, email FROM compte WHERE email = ?', [email], callback);
+}
+
+function getUserById(id, callback) {
+    db.get('SELECT idCompte, pseudo, email FROM compte WHERE idCompte = ?', [id], callback);
+}
+
 function getIdByEmail(email, callback) {
     db.get('SELECT idCompte FROM compte WHERE email = ?', [email], callback);
 }
@@ -33,4 +41,4 @@ function deleteFile(idDocument, callback) {
     db.run('DELETE FROM document WHERE idDocument = ?', [idDocument], callback);
 }
 
-module.exports = { getUserByEmailAndPassword, createUser, createFile, getFileById, editFile, deleteFile, getIdByEmail, getAllFiles};
+module.exports = { getUserByEmailAndPassword, createUser, createFile, getFileById, editFile, deleteFile, getIdByEmail, getAllFiles, getUserByEmail, getUserById};

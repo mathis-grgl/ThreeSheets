@@ -7,7 +7,76 @@ const routes = require("./routes"); // Importe le module 'routes'
 const bodyParser = require("body-parser"); // Importe le module 'body-parser' pour pouvoir récupérer les données des requêtes HTTP POST
 const db = require('./public/js/gestionBdd');
 const { log } = require("console");
+const http = require('http').Server(app); // Importe le module 'http' pour créer le serveur
+const io = require('socket.io')(http); // Importe le module 'socket.io' pour gérer les sockets
 const port = 8500;
+
+// Création d'un ensemble pour stocker les identifiants d'utilisateurs connectés
+const connectedUsers = new Set();
+
+app.get('/', (req, res) => {
+    res.send('Hello World!');
+});
+
+// On récupère la liste des utilisateurs connectés
+function getConnectedUsers() {
+    return Array.from(connectedUsers); // Convertit l'ensemble en tableau pour l'envoyer au client
+}
+
+// On gere les sockets
+io.on('connection', (socket) => {
+    // Gestionnaire d'événements pour la connexion d'un utilisateur
+    socket.on('join', (userId) => {
+        // Si l'utilisateur n'est pas déjà connecté, on l'ajoute à l'ensemble
+        if (!connectedUsers.has(userId)) {
+            connectedUsers.add(userId);
+            console.log(`Utilisateur connecté : ${userId}`);
+            // Envoi d'un événement à tous les clients pour informer de la nouvelle connexion
+            io.emit('newUser', { userId : userId, connectedUsers: getConnectedUsers() });
+        }
+    });
+
+    // Gestionnaire d'événements pour la déconnexion d'un utilisateur
+    socket.on('leave', (userId) => {
+        // Si l'utilisateur est connecté, on le supprime de l'ensemble
+        if (connectedUsers.has(userId)) {
+            connectedUsers.delete(userId);
+            console.log(`Utilisateur déconnecté : ${userId}`);
+            // Envoi d'un événement à tous les clients pour informer de la déconnexion
+            io.emit('leavingUser', { userId: userId, connectedUsers: getConnectedUsers() });
+        }
+    });
+
+    // Gestionnaire d'événements pour la modification de texte dans une cellule
+    socket.on('modificationTexte', (data) => {
+        // Émettre la modification à tous les clients connectés sauf à l'émetteur
+        socket.broadcast.emit('modificationTexte', data);
+    });
+
+    // Gestionnaire d'événements pour la modification du titre du fichier
+    socket.on('modificationTitre', (data) => {
+        // Émettre la modification à tous les clients connectés sauf à l'émetteur
+        socket.broadcast.emit('modificationTitre', data);
+    });
+
+    // Gestionnaire d'événements pour la modification de style dans une cellule
+    socket.on('modificationStyle', (data) => {
+        // Émettre la modification à tous les clients connectés sauf à l'émetteur
+        socket.broadcast.emit('modificationStyle', data);
+    });
+})
+  
+// On lance le serveur sur le port 8500 avec socket.io
+http.listen(port, () => {
+    console.log(`Serveur lancé à l'adresse http://localhost:${port}/index`);
+});
+
+
+
+/* ######### Definition des routes ######### */
+
+// Définissez votre chemin pour servir les fichiers statiques depuis node_modules
+app.use(express.static(path.join(__dirname , "node_modules")));
 
 // Définit le dossier 'public' comme dossier statique pour que l'on puisse accéder aux fichiers qu'il contient
 app.use(express.static(path.join(__dirname, "public"))); 
@@ -17,6 +86,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // Utilise le module 'routes' pour gérer les routes
 app.use("/", routes); 
+
+
+
+//* ######### Gestion des fichiers .xlsx ######### */
 
 // On définit le chemin du dossier contenant les .xlsx
 const storage = multer.diskStorage({
@@ -75,6 +148,10 @@ app.post("/edit", (req, res) => {
     xlsx.writeFile(workbook, path.join(__dirname, 'public', 'files', req.body.filename));
     res.status(200).send('Fichier modifié avec succès !');
 });
+
+
+
+/* ######### Gestion des requetes de la base de données ######### */
 
  // On défini la toute pour la création d'un document dans la db
 app.post("/create", (req, res) => {
@@ -158,15 +235,6 @@ app.delete("/delete/:id", (req, res) => {
     });
 });
 
-
-// On défini la route pour la récupération des données de session
-app.get('/infos-session', (req, res) => {
-    const sessionData = req.session; // Accès aux données de session
-
-    // Faites quelque chose avec les informations de session
-    res.send(sessionData);
-});
-
 // On défini la route pour la récupération de l'idCreateur
 app.get('/getIdCreateur', (req, res) => {
     const sessionData = req.session; // Accès aux données de session
@@ -181,7 +249,36 @@ app.get('/getIdCreateur', (req, res) => {
     });
 });
 
+// On défini la route pour la récupération d'un utilisateur par la session
+app.get('/getUser', (req, res) => {
+    const sessionData = req.session; // Accès aux données de session
 
-app.listen(port, () => {
-    console.log(`Serveur lancé à l'adresse http://localhost:${port}/index`);
+    // FOn récupère l'id du créateur avec son email
+    db.getUserByEmail(sessionData.email, (err, user) => {
+        if (err) {
+            res.status(500).send('Erreur lors de la récupération de l\'utilisateur');
+            return;
+        }
+        res.status(200).json({ user: user });
+    });
+});
+
+// On défini la route pour la récupération d'un utilisateur par son id
+app.get('/getUserById/:id', (req, res) => {
+    // FOn récupère l'id du créateur avec son email
+    db.getUserById(req.params.id, (err, user) => {
+        if (err) {
+            res.status(500).send('Erreur lors de la récupération de l\'utilisateur');
+            return;
+        }
+        res.status(200).json({ user: user });
+    });
+});
+
+// On défini la route pour la récupération des données de session
+app.get('/infos-session', (req, res) => {
+    const sessionData = req.session; // Accès aux données de session
+
+    // Faites quelque chose avec les informations de session
+    res.send(sessionData);
 });

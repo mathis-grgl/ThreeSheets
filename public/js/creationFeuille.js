@@ -18,7 +18,7 @@ for (let i = 0; i <= numberOfColumns; i++) {
         cell.textContent = String.fromCharCode(65 + i - 1);
         cell.id = `cell_0_${i}`;
     }
-
+    
     // On assigne un identifiant unique à chaque cellule
     cell.classList.add('table-secondary');
     cell.classList.add('text-center');
@@ -43,6 +43,10 @@ for (let i = 0; i < numberOfRows; i++) {
 
         // Si c'est la première colonne, on génère une cellule avec le numéro de ligne
         const cell = (j === 0) ? document.createElement('th') : document.createElement('td');
+        
+        // On assigne un identifiant unique à chaque cellule
+        cell.id = `cell_${i + 1}_${j}`;
+        cell.style.minWidth = '100px';
 
         // Première colonne avec les chiffres
         if (j === 0) {
@@ -53,11 +57,16 @@ for (let i = 0; i < numberOfRows; i++) {
             // Les autres cellules
         } else {
             cell.contentEditable = false;
-        }
 
-        // On assigne un identifiant unique à chaque cellule
-        cell.id = `cell_${i + 1}_${j}`;
-        cell.style.minWidth = '100px';
+            // On ajoute un event listener sur chaque cellule
+            cell.addEventListener('input', function(event) {
+                const modifiedCell = event.target;
+                const cellId = modifiedCell.id;
+                
+                // On appel la fonction onTextChange pour mettre à jour la cellule avec le socket
+                onTextChange(cellId);
+            });
+        }
 
         // On ajoute la cellule à la ligne
         row.appendChild(cell);

@@ -11,7 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 
-<body onload="setIdCreateur(); loadNameFile();">
+<body onload="setIdCreateur(); loadNameFile(); afficherUtilisateurs();">
     <!-- Récupération de l'id du créateur du fichier -->
     <input type="hidden" id="idCreateur" value=""></input>
 
@@ -76,9 +76,9 @@
         </div>
 
         <!-- Utilisateurs connectés => test d'affichage, à modifier en js pour afficher seulement les gens en train de modifier la feuille actuelle -->
-        <div class="ms-auto utilisateurs">
+        <div id="utilisateurs" class="ms-auto utilisateurs">
             <i class="bi bi-people"></i>
-            <button class="btn-account" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown"
+            <!--<button class="btn-account" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown"
                 aria-expanded="false">
                 <span data-bs-html="true" data-bs-toggle="popover" data-bs-placement="bottom" title="Informations"
                     data-bs-content='Sandy Gehin<br>sandy.gehin@gmail.com'>SG</span>
@@ -94,7 +94,7 @@
                 aria-expanded="false">
                 <span data-bs-html="true" data-bs-toggle="popover" data-bs-placement="bottom" title="Informations"
                     data-bs-content='Quentin Beluche<br>quentin.beluche@gmail.com'>QB</span>
-            </button>
+            </button>-->
         </div>
     </div>
 
@@ -174,12 +174,17 @@
     integrity="sha512-UnrKxsCMN9hFk7M56t4I4ckB4N/2HHi0w/7+B/1JsXIX3DmyBcsGpT3/BsuZMZf+6mAr0vP81syWtfynHJ69JA=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-
+    
+<!--<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>-->
+<script src="/socket.io-client/dist/socket.io.js"></script>
+    
 <!-- Script JavaScript personnalisé -->
+<script src="/js/gestionUtilisateurs.js"></script>
 <script src="/js/creationFeuille.js"></script>
 <script src="/js/gestionCellules.js"></script>
-<script src="/js/gestionUtilisateurs.js"></script>
 <script src="/js/gestionFichier.js"></script>
+
+
 <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
 
 </html>

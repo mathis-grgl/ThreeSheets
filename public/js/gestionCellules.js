@@ -2,6 +2,33 @@ const fileName = document.getElementById('file-name'); // Nom du fichier
 const editButton = document.querySelector('.edit-button'); // Bouton d'édition du nom du fichier
 let fileNameText = fileName.textContent; // Texte du nom du fichier
 
+// On écoute les événements de modification de texte
+socket.on('modificationTexte', (data) => {
+    const cell = document.getElementById(data.idCellule); // Récupérer la cellule modifiée
+
+    cell.textContent = data.nouveauTexte; // Modifier le texte de la cellule
+    //console.log("Recoit Cell : " + data.idCellule + " -- Modif : " + data.nouveauTexte);
+});
+
+// On écoute les événements de modification de texte
+socket.on('modificationTitre', (data) => {
+    fileName.textContent = data.nouveauTitre; // Modifier le titre du fichier
+});
+
+// On écoute les événements de modification de style
+socket.on('modificationStyle', (data) => {
+    const cell = document.getElementById(data.idCellule); // Récupérer la cellule modifiée
+    
+    // Modifier le style de la cellule
+    cell.style.fontWeight = data.fontWeight;
+    cell.style.fontStyle = data.fontStyle;
+    cell.style.textDecoration = data.textDecoration;
+    cell.style.color = data.color;
+    cell.style.backgroundColor = data.backgroundColor;
+    cell.classList.remove('text-start', 'text-center', 'text-end');
+    cell.classList.add(data.textAlign);
+});
+
 // On ecoute le click sur le bouton d'edition du nom du fichier
 editButton.addEventListener('click', function() {
     fileName.contentEditable = 'true'; // On active l'édition du nom du fichier
@@ -14,6 +41,9 @@ document.addEventListener('keydown', function(event) {
         // On désactive l'édition du nom du fichier
         fileName.contentEditable = 'false';
         fileNameText = fileName.textContent; // On récupère le nouveau nom du fichier
+
+        // On notifie le serveur de la modification du titre pour l'autre utilisateur
+        socket.emit('modificationTitre', { nouveauTitre: fileNameText });
     } else if (event.key === 'Escape') {
         // On désactive l'édition du nom du fichier
         fileName.contentEditable = 'false';
@@ -22,6 +52,15 @@ document.addEventListener('keydown', function(event) {
         fileName.textContent = fileNameText; // Remplacer 'oldText' par le texte d'origine
     }
 });
+
+// On notifie le serveur de la modification de texte pour l'autre utilisateur
+function onTextChange(id) {
+    // On récupère la cellule modifiée
+    const cell = document.getElementById(id);
+    console.log("Envoi Cell : " + id + " -- Modif : " + cell.textContent);
+    // Émettre un événement pour signaler la modification de texte
+    socket.emit('modificationTexte', { idCellule: id, nouveauTexte: cell.textContent });
+}
 
 
 // Écouteurs d'événements pour les boutons de la barre d'outils
@@ -113,6 +152,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // On met en gras la cellule cliquée si elle ne l'est pas sinon on enlève le gras
         (cell.style.fontWeight === 'bold') ? cell.style.fontWeight = 'normal' : cell.style.fontWeight = 'bold';
+
+        // On notifie le serveur de la modification de style pour l'autre utilisateur
+        notifyServer(idCell);
     });
 
     //  Italique
@@ -122,6 +164,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // On met en italique la cellule cliquée si elle ne l'est pas sinon on enlève l'italique
         (cell.style.fontStyle === 'italic') ? cell.style.fontStyle = 'normal' : cell.style.fontStyle = 'italic';
+
+        // On notifie le serveur de la modification de style pour l'autre utilisateur
+        notifyServer(idCell);
     });
 
     // Souligner
@@ -131,6 +176,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // On souligne la cellule cliquée si elle ne l'est pas sinon on enlève le soulignement
         (cell.style.textDecoration === 'underline') ? cell.style.textDecoration = 'none' : cell.style.textDecoration = 'underline';
+
+        // On notifie le serveur de la modification de style pour l'autre utilisateur
+        notifyServer(idCell);
     });
 
     // Aligner à gauche
@@ -143,6 +191,9 @@ document.addEventListener('DOMContentLoaded', function () {
             cell.classList.add("text-start");
             cell.classList.remove("text-center", "text-end");
         }
+
+        // On notifie le serveur de la modification de style pour l'autre utilisateur
+        notifyServer(idCell);
     });
 
     // Aligner au centre
@@ -155,6 +206,9 @@ document.addEventListener('DOMContentLoaded', function () {
             cell.classList.add("text-center");
             cell.classList.remove("text-start", "text-end");
         }
+
+        // On notifie le serveur de la modification de style pour l'autre utilisateur
+        notifyServer(idCell);
     });
 
     // Aligner à droite
@@ -167,6 +221,9 @@ document.addEventListener('DOMContentLoaded', function () {
             cell.classList.add("text-end");
             cell.classList.remove("text-start", "text-center");
         }
+
+        // On notifie le serveur de la modification de style pour l'autre utilisateur
+        notifyServer(idCell);
     });
 
     // Changer la couleur de fond par rapport au colorpicker
@@ -179,6 +236,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // On change la couleur de fond de la cellule cliquée si elle est blanche sinon on la met en blanc
         (cell.style.backgroundColor != "white") ? cell.style.backgroundColor = selectedColor : cell.style.backgroundColor = "white";
+
+        // On notifie le serveur de la modification de style pour l'autre utilisateur
+        notifyServer(idCell);
     });
 
     // Changer la couleur de texte par rapport au colorpicker
@@ -191,5 +251,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // On change la couleur de fond de la cellule cliquée si elle est blanche sinon on la met en blanc
         (cell.style.color != "white") ? cell.style.color = selectedColor : cell.style.color = "white";
+
+        // On notifie le serveur de la modification de style pour l'autre utilisateur
+        notifyServer(idCell);
     });
 });
+
+// On notifie le serveur de la modification de style pour l'autre utilisateur
+function notifyServer(idCell) {
+    // On récupère la cellule modifiée
+    const cell = document.getElementById(idCell);
+
+    // On récupère l'alignement de la cellule
+    let textAlign = "";
+    if (cell.classList.contains("text-end") && !cell.classList.contains("text-center") && !cell.classList.contains("text-start")) { 
+        textAlign = "text-end";
+    } else if (cell.classList.contains("text-center") && !cell.classList.contains("text-end") && !cell.classList.contains("text-start")) {
+        textAlign = "text-center";
+    } else if (cell.classList.contains("text-start") && !cell.classList.contains("text-end") && !cell.classList.contains("text-center")) {
+        textAlign = "text-start";
+    }
+
+    // Émettre un événement pour signaler la modification de style
+    socket.emit('modificationStyle', { idCellule: idCell, fontWeight: cell.style.fontWeight, fontStyle: cell.style.fontStyle, textDecoration: cell.style.textDecoration, color: cell.style.color, backgroundColor: cell.style.backgroundColor, textAlign: textAlign });
+}
