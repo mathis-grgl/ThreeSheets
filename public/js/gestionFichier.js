@@ -213,6 +213,7 @@ function afficherToast(message, type) {
     alertDiv.querySelector(".toast-body").textContent = message;
 
     // On change la couleur de fond du toast en fonction du type de message (success, danger)
+    alertDiv.classList.remove('text-bg-success', 'text-bg-danger');
     alertDiv.classList.add(`text-bg-${type}`);
 
     // Création de l'objet Toast à partir de l'élément récupéré
