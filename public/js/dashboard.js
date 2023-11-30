@@ -1,12 +1,22 @@
+// On établi une connexion Socket.IO avec le serveur pour la mise à jour en temps réel
+let socket = io() // Connexion au serveur Socket.IO
+
+// Si le créateur d'un document le supprime, on recharge les documents
+socket.on('changeDocument', () => {
+    afficherDocuments();
+});
+
 // Fonction pour récupérer et afficher tous les documents
 async function afficherDocuments() {
     try {
+        // On récupère l'id du créateur
+        const id = await getIdCreateur();
+
         // Récupération de tous les documents
-        const response = await fetch('/getAll');
+        const response = await fetch('/getSharedDocumentsByUser/' + id.idCreateur.idCompte);
         if (!response.ok) {
             throw new Error('Erreur lors de la récupération des documents');
         }
-
         // Conversion de la réponse en JSON
         const documents = await response.json();
 
@@ -64,12 +74,26 @@ async function supprimerDocument(idDocument) {
         // On affiche un toast pour confirmer la suppression
         afficherToast('Document supprimé avec succès !', 'success');
 
+        // On actualise la liste des documents pour les utilisateurs connectés
+        socket.emit('changeDocument');
+
         afficherDocuments(); // On actualise la liste des documents après la suppression
     } catch (error) {
         // On affiche un toast avec le message d'erreur
         const modalMessage = error.message || 'Erreur inconnue';
         afficherToast(modalMessage, 'danger');
     }
+}
+
+// On récupère l'id du créateur
+async function getIdCreateur(){
+    return fetch('/getIdCreateur')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur de réseau');
+            }
+            return response.json(); // Récupération des données de session au format JSON
+        });
 }
 
 // Affichage d'un tosat pour les erreus, messages, ...

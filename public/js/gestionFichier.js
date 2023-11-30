@@ -198,11 +198,11 @@ async function enregistrerSurServeur(blob) {
             await createDocumentInDb(titre, idCreateur);
         } else {
             // Afficher une alerte d'erreur
-            afficherAlerte("Erreur lors de l\'enregistrement du fichier sur le serveur.", 'danger');
+            afficherToast("Erreur lors de l\'enregistrement du fichier sur le serveur.", 'danger');
         }
     } catch (error) {
         // Afficher une alerte d'erreur
-        afficherAlerte("Erreur lors de l\'envoi du fichier sur le serveur.", 'danger');
+        afficherToast("Erreur lors de l\'envoi du fichier sur le serveur.", 'danger');
     }
 }
 
@@ -254,6 +254,9 @@ async function createDocumentInDb(titre, idCreateur) {
 
         // On récupère les données renvoyées par le serveur
         const responseData = await response.text();
+
+        // On actualise la liste des documents pour les utilisateurs connectés
+        socket.emit('changeDocument');
         
         // Afficher une alerte de succès
         afficherToast(responseData, 'success');
@@ -301,6 +304,9 @@ async function loadNameFile() {
             titreElement.textContent = titre;
         } catch (error) {
             console.error(error); // Gestion des erreurs
+
+            // Afficher une alerte d'erreur
+            afficherToast("Erreur lors de la récupération du fichier.", 'danger');
         }
     }
 }

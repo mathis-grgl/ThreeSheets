@@ -13,6 +13,9 @@ socket.on('modificationTexte', (data) => {
 // On écoute les événements de modification de texte
 socket.on('modificationTitre', (data) => {
     fileName.textContent = data.nouveauTitre; // Modifier le titre du fichier
+
+    // On actualise la liste des documents pour les utilisateurs connectés
+    socket.emit('changeDocument');
 });
 
 // On écoute les événements de modification de style

@@ -28,8 +28,8 @@ io.on('connection', (socket) => {
     // Gestionnaire d'événements pour la connexion d'un utilisateur
     socket.on('join', (userId) => {
         // Si l'utilisateur n'est pas déjà connecté, on l'ajoute à l'ensemble
-        if (!connectedUsers.has(userId)) {
-            connectedUsers.add(userId);
+        if (!connectedUsers.has(userId.toString())) {
+            connectedUsers.add(userId.toString());
             console.log(`Utilisateur connecté : ${userId}`);
             // Envoi d'un événement à tous les clients pour informer de la nouvelle connexion
             io.emit('newUser', { userId : userId, connectedUsers: getConnectedUsers() });
@@ -39,11 +39,11 @@ io.on('connection', (socket) => {
     // Gestionnaire d'événements pour la déconnexion d'un utilisateur
     socket.on('leave', (userId) => {
         // Si l'utilisateur est connecté, on le supprime de l'ensemble
-        if (connectedUsers.has(userId)) {
-            connectedUsers.delete(userId);
+        if (connectedUsers.has(userId.toString())) {
+            connectedUsers.delete(userId.toString());
             console.log(`Utilisateur déconnecté : ${userId}`);
             // Envoi d'un événement à tous les clients pour informer de la déconnexion
-            io.emit('leavingUser', { userId: userId, connectedUsers: getConnectedUsers() });
+            socket.broadcast.emit('leavingUser', { userId: userId, connectedUsers: getConnectedUsers() });
         }
     });
 
@@ -63,6 +63,12 @@ io.on('connection', (socket) => {
     socket.on('modificationStyle', (data) => {
         // Émettre la modification à tous les clients connectés sauf à l'émetteur
         socket.broadcast.emit('modificationStyle', data);
+    });
+
+    // Gestionnaire d'événements pour la suppression d'un document
+    socket.on('changeDocument', (data) => {
+        // Émettre la suppression à tous les clients connectés sauf à l'émetteur
+        socket.broadcast.emit('changeDocument');
     });
 })
   
@@ -154,16 +160,28 @@ app.post("/edit", (req, res) => {
 /* ######### Gestion des requetes de la base de données ######### */
 
  // On défini la toute pour la création d'un document dans la db
-app.post("/create", (req, res) => {
-    db.createFile(req.body.titre, req.body.idCreateur, (err) => {
-        if (err) throw err;
-        res.status(200).send('Document créé/modifié avec succès !');
+ app.post("/create", (req, res) => {
+    const { titre, idCreateur } = req.body;
+    db.createFile(titre, idCreateur, (err) => {
+        if (err) {
+            res.status(500).send('Erreur lors de la création du document.');
+        } else {
+            res.status(200).send('Document créé/modifié avec succès !');
+        }
     });
 });
 
 // On défini la route pour la récupération des documents dans la db
 app.get("/get/:idCreateur", (req, res) => {
     db.getFiles(req.params.idCreateur, (err, rows) => {
+        if (err) throw err;
+        res.status(200).send(rows);
+    });
+});
+
+// On défini la route pour la récupération de tout les comptes dans la db
+app.get("/getAllUsers", (req, res) => {
+    db.getAllUsers((err, rows) => {
         if (err) throw err;
         res.status(200).send(rows);
     });
@@ -176,6 +194,15 @@ app.get("/getAll", (req, res) => {
         res.status(200).send(rows);
     });
 });
+
+// On défini la route pour la récupération d'une documents partagés associés à un utilisateur dans la db
+app.get("/getSharedDocumentsByUser/:id", (req, res) => {
+    db.getSharedDocumentsByUser(req.params.id, (err, file) => {
+        if (err) throw err;
+        res.status(200).send(file);
+    });
+});
+
 
 // On défini la route pour la modification d'un document dans la db
 app.post("/edit", (req, res) => {
@@ -272,6 +299,28 @@ app.get('/getUserById/:id', (req, res) => {
             return;
         }
         res.status(200).json({ user: user });
+    });
+});
+
+// On défini la route pour l"ajout d'un utilisateur dans un document partagé
+app.get('/shareDocument/:idDocument/:idCompte', (req, res) => {
+    db.shareDocument(req.params.idDocument, req.params.idCompte, (err) => {
+        if (err) {
+            res.status(500).send('Erreur lors de l\'ajout de l\'utilisateur dans le document partagé');
+            return;
+        }
+        res.status(200).send('Utilisateur ajouté avec succès !');
+    });
+});
+
+// Route pour retirer un utilisateur d'un partage
+app.get('/removeShare/:idDocument/:idCompte', (req, res) => {
+    db.deleteShare(req.params.idDocument, req.params.idCompte, (err) => {
+        if (err) {
+            res.status(500).send('Erreur lors de la suppression de l\'utilisateur du partage');
+            return;
+        }
+        res.status(200).send('Utilisateur retiré avec succès du partage !');
     });
 });
 

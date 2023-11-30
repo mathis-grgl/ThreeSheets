@@ -76,6 +76,54 @@ tbody {
     top: 140px;
     z-index: 1;
 }
+.flex-container {
+    display: flex;
+    flex-direction: row;
+}
+
+/* Style pour le bouton partager */
+.btn-partager {
+    height: 40px;
+    margin-top: 5px;
+    margin-right: 10px;
+    width: fit-content;
+    border-radius: 100px;
+    border: none;
+    transition: transform 0.2s ease;
+}
+
+/* Transition au survol */
+.btn-partager:hover {
+    transform: scale(1.1);
+}
+
+/* Style pour le modal liste des utilisateurs */
+#myModal {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Style pour la ligne d'un utilisateur */
+.user-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #ccc; /* Bordure entre chaque utilisateur */
+}
+
+/* Style pour la colonne d'un utilisateur */
+.user-column {
+    padding: 0 8px;
+    /* Ajoutez d'autres styles selon vos besoins */
+}
+
+/* Style pour le bouton de partage à un utilisateur */
+.btn-partager {
+    margin-left: auto;
+}
+
+
 
 /* Style pour l'affichage des personnes connectées */
 .btn-account {
@@ -171,7 +219,7 @@ tbody {
 
 /* On met le toast au premier plan */
 .toast {
-    z-index: 3;
+    z-index: 9999;
 }
 
 

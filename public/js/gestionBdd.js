@@ -1,5 +1,7 @@
 const db = require('./db');
 
+/* Gestion des comptes */
+
 function getUserByEmailAndPassword(email, motDePasse, callback) {
     db.get('SELECT * FROM compte WHERE email = ? AND mdp = ?', [email, motDePasse], callback);
 }
@@ -20,10 +22,24 @@ function getIdByEmail(email, callback) {
     db.get('SELECT idCompte FROM compte WHERE email = ?', [email], callback);
 }
 
-function createFile(titre, idCreateur, callback) {
-    db.run('INSERT INTO document (titre, idCreateur) VALUES (?, ?)', [titre, idCreateur], callback);
+function getAllUsers(callback) { 
+    db.all('SELECT * FROM compte', callback);
 }
 
+
+/* Gestion des documents */
+
+// Requête qu icrée un document et le partage avec le créateur
+function createFile(titre, idCreateur, callback) {
+    db.run('INSERT INTO DOCUMENT (titre, idCreateur) VALUES (?, ?)', [titre, idCreateur], function(err) {
+        if (err) {
+            callback(err);
+        } else {
+            const lastId = this.lastID; // Récupère l'id du dernier enregistrement inséré
+            db.run('INSERT INTO PARTAGE (idDocument, idCompte) VALUES (?, ?)', [lastId, idCreateur], callback);
+        }
+    });
+}
 
 function getFileById(idDocument, callback) {
     db.get('SELECT * FROM document WHERE idDocument = ?', [idDocument], callback);
@@ -37,8 +53,34 @@ function editFile(id, titre, callback) {
     db.run('UPDATE document SET titre = ? WHERE id = ?', [titre, id], callback);
 }
 
+// Requête qui supprime un document et les partages associés
 function deleteFile(idDocument, callback) {
-    db.run('DELETE FROM document WHERE idDocument = ?', [idDocument], callback);
+    db.run('DELETE FROM DOCUMENT WHERE idDocument = ?', [idDocument], function(err)
+     {
+        if (err) {
+            callback(err);
+        } else {
+            db.run('DELETE FROM PARTAGE WHERE idDocument = ?', [idDocument], callback);
+        }
+    });
 }
 
-module.exports = { getUserByEmailAndPassword, createUser, createFile, getFileById, editFile, deleteFile, getIdByEmail, getAllFiles, getUserByEmail, getUserById};
+/* Gestion des partages */
+
+function getSharedDocumentsByUser(userId, callback) {
+    db.all('SELECT * FROM DOCUMENT WHERE idDocument IN ' +
+        '(SELECT idDocument FROM PARTAGE WHERE idCompte = ?);',
+        [userId],
+        callback);
+}
+
+function shareDocument(idDocument, idCompte, callback) {
+    db.run('INSERT INTO PARTAGE (idDocument, idCompte) VALUES (?, ?)', [idDocument, idCompte], callback);
+}
+
+// Supprimer le partage d'un document pour un utilisateur spécifique
+function deleteShare(idDocument, idCompte, callback) {
+    db.run('DELETE FROM PARTAGE WHERE idDocument = ? AND idCompte = ?', [idDocument, idCompte], callback);
+}
+
+module.exports = { getUserByEmailAndPassword, createUser, createFile, getFileById, editFile, deleteFile, getIdByEmail, getAllFiles, getUserByEmail, getUserById, getAllUsers, getSharedDocumentsByUser, shareDocument, deleteShare};
