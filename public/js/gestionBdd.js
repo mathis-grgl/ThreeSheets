@@ -45,6 +45,10 @@ function getFileById(idDocument, callback) {
     db.get('SELECT * FROM document WHERE idDocument = ?', [idDocument], callback);
 }
 
+function getLastFile(callback) {
+    db.get('SELECT * FROM document ORDER BY idDocument DESC LIMIT 1', callback);
+}
+
 function getAllFiles(callback) {
     db.all('SELECT * FROM document', callback);
 }
@@ -83,4 +87,8 @@ function deleteShare(idDocument, idCompte, callback) {
     db.run('DELETE FROM PARTAGE WHERE idDocument = ? AND idCompte = ?', [idDocument, idCompte], callback);
 }
 
-module.exports = { getUserByEmailAndPassword, createUser, createFile, getFileById, editFile, deleteFile, getIdByEmail, getAllFiles, getUserByEmail, getUserById, getAllUsers, getSharedDocumentsByUser, shareDocument, deleteShare};
+function hasAccess(idDocument, idCompte, callback) {
+    db.get('SELECT * FROM PARTAGE WHERE idDocument = ? AND idCompte = ?', [idDocument, idCompte], callback);
+}
+
+module.exports = { getUserByEmailAndPassword, createUser, createFile, getFileById, editFile, deleteFile, getIdByEmail, getAllFiles, getUserByEmail, getUserById, getAllUsers, getSharedDocumentsByUser, shareDocument, deleteShare, hasAccess, getLastFile};

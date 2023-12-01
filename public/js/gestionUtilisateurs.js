@@ -23,13 +23,19 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // On écoute les événements de connexion d'un utilisateur au chargement de la page
 window.addEventListener('pageshow', (event) => {
+    // On set l'id du créateur dans la feuille de calcul et on charge le nom du fichier si'il existe
+    setIdCreateur(); 
+    loadNameFile();
+
+    // On notifie le serveur de la connexion d'un utilisateur
     socket = io();
     socket.emit('join', document.getElementById('idCreateur').value);
   
+    // On affiche les utilisateurs connectés
     afficherUtilisateurs();
     cacherPopUpAttente(); // Masquer le pop-up d'attente
 });
-  
+    
 // On envoie un événement au serveur pour signaler la déconnexion d'un utilisateur
 socket.on('deconnect', () => {
     socket.emit('leave', document.getElementById('idCreateur').value);
@@ -49,8 +55,8 @@ socket.on('leavingUser', (data) => {
         afficherToast("L'utilisateur " + data.userId + " vient de se déconnecter", 'danger');
         afficherUtilisateurs(data.connectedUsers);
     } else {
-        // on redirige vers le dashboard
-        window.location.href = "/dashboard"; // Probleme ca redirige aussi si on fait f5 sur la page et donc ca deco l'utilisateur qui degage un autre utilisateur
+        // On verifie si l'utilisateur a accès au document sinon on le redirige vers le dashboard
+        checkAcces();
     }
 });
 
@@ -122,12 +128,15 @@ btnPartager.addEventListener('click', async () => {
 async function setIdCreateur() {
     // On récupère l'id du créateur
     getIdCreateur()
-    .then(data => {
+    .then(async data => {
         // On récupère l'idCreateur
         const idCreateur = document.getElementById('idCreateur');
 
         // On set l'id du créateur dans la feuille de calcul
         idCreateur.value = data.idCreateur.idCompte;
+
+        // On verifie si l'utilisateur a accès au document sinon on le redirige vers le dashboard
+        checkAcces();
 
         // On notifie le serveur de la connexion d'un utilisateur
         socket.emit('join', document.getElementById('idCreateur').value);
@@ -140,7 +149,7 @@ async function setIdCreateur() {
 
 // On récupère l'id du créateur
 async function getIdCreateur(){
-    return fetch('/getIdCreateur')
+    return await fetch('/getIdCreateur')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Erreur de réseau');
@@ -284,8 +293,55 @@ async function donnerAcces(idCompte){
             });
     } else {
         // On affiche un message d"erreur"
-        afficherToast("Veuillez ajouter un utilisateur sur un document existant", 'danger');
+        afficherToast("Veuillez enregistrer votre document avant", 'danger');
     }
+}
+
+// On vérifie si l'utilisateur a accès au document
+async function checkAcces() {
+    // On récupère l'id du document dans l'url
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const idDocument = urlParams.get('idDocument');
+
+    // Si idDocument est null c'est que c'est un nouveau document donc on veut rester sur la page
+    if (idDocument != null) {
+        hasAccess()
+            .then(async data => {
+                // On verifie si l'utilisateur a accès au document sinon on le redirige vers le dashboard
+                if (data.hasAccess == undefined || data.hasAccess == null) {
+                    // On redirige vers le dashboard
+                    window.location.href = "/dashboard";
+                }
+            })
+            .catch(error => {
+                console.error(error); // Gestion des erreurs
+            });
+    } else {
+        // Si c'est un nouveau fichier, on l'enregistre tout de suite
+        enregistrerFichier()
+    }
+}
+
+async function hasAccess() {
+    // On récupère l'id du document dans l'url
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const idDocument = urlParams.get('idDocument');
+
+    // On recupère l'id de l'utilisateur connecté
+    const idCompte = document.getElementById('idCreateur').value;
+    console.log("idCompte : " + idCompte);
+
+    // On verifie si l'utilisateur a accès au document
+    return await fetch('/hasAccess/' + idDocument + '/' + idCompte)
+        .then(async response => {
+            if (!response.ok) {
+                throw new Error('Erreur de réseau');
+            }
+
+            return response.json(); // Récupération des données au format JSON
+        });
 }
 
 // On récupère tous les utilisateurs
@@ -295,6 +351,6 @@ async function getAllUsers(){
             if (!response.ok) {
                 throw new Error('Erreur de réseau');
             }
-            return response.json(); // Récupération des données de session au format JSON
+            return response.json(); // Récupération des données au format JSON
         });
 }

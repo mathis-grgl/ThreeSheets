@@ -206,6 +206,33 @@ async function enregistrerSurServeur(blob) {
     }
 }
 
+// On recupère le dernier fichier dans la db
+async function getLastFile() {
+    // On récupère le dernier fichier dans la db
+    fetch('/getLastFile')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur de réseau');
+            }
+
+            // Récupération des données JSON renvoyées par le serveur
+            return response.json();
+        })
+        .then(data => {
+            // On récupère le titre du dernier fichier
+            const idDocument = data.idDocument;
+
+            // On rajouter l'id du document dans l'url
+            window.history.pushState(null, null, `?idDocument=${idDocument}`);
+        })
+        .catch(error => {
+            console.error(error); // Gestion des erreurs
+
+            // Afficher une alerte d'erreur
+            afficherToast("Erreur lors de la récupération du dernier fichier.", 'danger');
+        });
+}
+
 // Affichage d'un tosat pour les erreus, messages, ...
 function afficherToast(message, type) {
     // On récupère le toast et on l'affiche avec le message en paramètre
@@ -260,6 +287,9 @@ async function createDocumentInDb(titre, idCreateur) {
         
         // Afficher une alerte de succès
         afficherToast(responseData, 'success');
+
+        // On récupère le dernier fichier dans la db et on met à jour l'url avec l'id du document
+        getLastFile();
     } catch (error) {
         // Afficher une alerte d'erreur
         afficherAlerte(error.message || 'Erreur inconnue', 'danger');
@@ -289,6 +319,9 @@ async function loadNameFile() {
             // Effectuer une requête pour récupérer le fichier
             const fileResponse = await fetch(url);
             if (!fileResponse.ok) {
+                // On affiche une alerte d'erreur
+                afficherToast("Erreur lors de la récupération du fichier.", 'danger');
+
                 throw new Error('Erreur lors de la récupération du fichier');
             }
 
