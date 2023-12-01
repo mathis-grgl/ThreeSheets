@@ -10,16 +10,17 @@ const http = require('http').Server(app); // Importe le module 'http' pour crée
 const io = require('socket.io')(http); // Importe le module 'socket.io' pour gérer les sockets
 const port = 8500;
 
-// Création d'un ensemble pour stocker les identifiants d'utilisateurs connectés
-const connectedUsers = new Set();
+// Créer un objet pour stocker les identifiants des utilisateurs par document
+const connectedUsersPerDocument = {};
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
 
-// On récupère la liste des utilisateurs connectés
-function getConnectedUsers() {
-    return Array.from(connectedUsers); // Convertit l'ensemble en tableau pour l'envoyer au client
+
+// On récupère la liste des utilisateurs connectés à un document
+function getConnectedUsers(documentId) {
+    return Array.from(connectedUsersPerDocument[documentId] || []); // Convertit l'ensemble en tableau pour l'envoyer au client
 }
 
 // On défini la route pour la récupération des données de session
@@ -36,49 +37,69 @@ app.get('/infos-session', (req, res) => {
 
 // On gere les sockets
 io.on('connection', (socket) => {
-    // Gestionnaire d'événements pour la connexion d'un utilisateur
+    // Gestionnaire d'événements pour la connexion d'un utilisateur au serveur
     socket.on('join', (userId) => {
         // Si l'utilisateur n'est pas déjà connecté, on l'ajoute à l'ensemble
-        if (!connectedUsers.has(userId.toString())) {
-            connectedUsers.add(userId.toString());
-            console.log(`Utilisateur connecté : ${userId}`);
-            // Envoi d'un événement à tous les clients pour informer de la nouvelle connexion
-            io.emit('newUser', { userId : userId, connectedUsers: getConnectedUsers() });
-        }
+        console.log(`Utilisateur ${userId} connecté au serveur`);
     });
 
-    // Gestionnaire d'événements pour la déconnexion d'un utilisateur
+    // Gestionnaire d'événements pour la déconnexion d'un utilisateur au serveur
     socket.on('leave', (userId) => {
-        // Si l'utilisateur est connecté, on le supprime de l'ensemble
-        if (connectedUsers.has(userId.toString())) {
-            connectedUsers.delete(userId.toString());
-            console.log(`Utilisateur déconnecté : ${userId}`);
-            // Envoi d'un événement à tous les clients pour informer de la déconnexion
-            socket.broadcast.emit('leavingUser', { userId: userId, connectedUsers: getConnectedUsers() });
+        console.log(`Utilisateur déconnecté : ${userId}`);
+    });
+
+    // Gestionnaire d'événements pour la connexion d'un utilisateur à un document
+    socket.on('joinDocument', (documentId, userId) => {
+        // Vérifier si le document existe dans connectedUsersPerDocument
+        if (!connectedUsersPerDocument[documentId]) {
+            connectedUsersPerDocument[documentId] = new Set();
         }
+
+        // Si l'utilisateur n'est pas déjà connecté au document, l'ajouter à l'ensemble correspondant
+        if (!connectedUsersPerDocument[documentId].has(userId.toString())) {
+            connectedUsersPerDocument[documentId].add(userId.toString());
+            console.log(`Utilisateur ${userId} connecté au document ${documentId}`);
+        }
+        
+        // Envoi d'un événement à tous les clients du document pour informer de la nouvelle connexion à un document
+        io.to(documentId).emit('newUser', { userId: userId, connectedUsers: getConnectedUsers(documentId) });
+        socket.join(documentId); // Rejoindre la "room" du document avec l'ID correspondant
     });
 
-    // Gestionnaire d'événements pour la modification de texte dans une cellule
-    socket.on('modificationTexte', (data) => {
-        // Émettre la modification à tous les clients connectés sauf à l'émetteur
-        socket.broadcast.emit('modificationTexte', data);
+    // Gestionnaire d'événements pour la déconnexion d'un utilisateur d'un document
+    socket.on('leaveDocument', (documentId, userId) => {
+        // Vérifier si le document existe dans connectedUsersPerDocument
+        if (connectedUsersPerDocument[documentId] && connectedUsersPerDocument[documentId].has(userId.toString())) {
+            connectedUsersPerDocument[documentId].delete(userId.toString());
+            console.log(`Utilisateur ${userId} déconnecté du document ${documentId}`);
+        }
+        
+        // Envoi d'un événement à tous les clients du document pour informer de la déconnexion à un document
+        io.to(documentId).emit('leavingUser', { userId: userId, connectedUsers: getConnectedUsers(documentId) });
+        socket.leave(documentId); // Quitter la "room" du document avec l'ID correspondant
     });
 
-    // Gestionnaire d'événements pour la modification du titre du fichier
-    socket.on('modificationTitre', (data) => {
-        // Émettre la modification à tous les clients connectés sauf à l'émetteur
-        socket.broadcast.emit('modificationTitre', data);
+    // Gestionnaire d'événements pour la modification de texte dans une cellule d'un document
+    socket.on('modificationTexte', (documentId, data) => {
+        // Émettre la modification à tous les clients du document sauf à l'émetteur
+        socket.to(documentId).emit('modificationTexte', data);
     });
 
-    // Gestionnaire d'événements pour la modification de style dans une cellule
-    socket.on('modificationStyle', (data) => {
-        // Émettre la modification à tous les clients connectés sauf à l'émetteur
-        socket.broadcast.emit('modificationStyle', data);
+    // Gestionnaire d'événements pour la modification du titre du fichier d'un document
+    socket.on('modificationTitre', (documentId, data) => {
+        // Émettre la modification à tous les clients du document sauf à l'émetteur
+        socket.to(documentId).emit('modificationTitre', data);
+    });
+
+    // Gestionnaire d'événements pour la modification de style dans une cellule d'un document
+    socket.on('modificationStyle', (documentId, data) => {
+        // Émettre la modification à tous les clients du document sauf à l'émetteur
+        socket.to(documentId).emit('modificationStyle', data);
     });
 
     // Gestionnaire d'événements pour la suppression d'un document
-    socket.on('changeDocument', (data) => {
-        // Émettre la suppression à tous les clients connectés sauf à l'émetteur
+    socket.on('changeDocument', () => {
+        // Émettre la suppression à tous les clients du document sauf à l'émetteur
         socket.broadcast.emit('changeDocument');
     });
 })

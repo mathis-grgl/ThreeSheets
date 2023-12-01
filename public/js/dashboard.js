@@ -1,6 +1,19 @@
 // On établi une connexion Socket.IO avec le serveur pour la mise à jour en temps réel
 let socket = io() // Connexion au serveur Socket.IO
 
+// On écoute les événements de connexion d'un utilisateur au chargement de la page
+window.addEventListener('pageshow', (event) => {
+    // On notifie le serveur de la connexion d'un utilisateur
+    socket.emit('join');
+});
+
+// On envoie un événement au serveur pour signaler la déconnexion d'un utilisateur quand il quitte la page ou navigue en arrière
+window.addEventListener('beforeunload', function() {
+    // Déconnexion du socket lorsque l'utilisateur quitte la page ou navigue en arrière
+    socket.emit('leave');
+    socket.disconnect();
+});
+
 // Si le créateur d'un document le supprime, on recharge les documents
 socket.on('changeDocument', () => {
     afficherDocuments();

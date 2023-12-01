@@ -27,18 +27,27 @@ window.addEventListener('pageshow', (event) => {
     setIdCreateur(); 
     loadNameFile();
 
+    // On récupère l'id du document dans l'url
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const idDocument = urlParams.get('idDocument');
+
     // On notifie le serveur de la connexion d'un utilisateur
-    socket = io();
-    socket.emit('join', document.getElementById('idCreateur').value);
-  
+    socket.emit('joinDocument', idDocument, document.getElementById('idCreateur').value);
+
     // On affiche les utilisateurs connectés
-    afficherUtilisateurs();
+    //afficherUtilisateurs();
     cacherPopUpAttente(); // Masquer le pop-up d'attente
 });
     
 // On envoie un événement au serveur pour signaler la déconnexion d'un utilisateur
 socket.on('deconnect', () => {
-    socket.emit('leave', document.getElementById('idCreateur').value);
+    // On récupère l'id du document dans l'url
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const idDocument = urlParams.get('idDocument');
+
+    socket.emit('leaveDocument', idDocument, document.getElementById('idCreateur').value);
 });
 
 // On écoute les événements de connexion d'un utilisateur
@@ -62,8 +71,13 @@ socket.on('leavingUser', (data) => {
 
 // On envoie un événement au serveur pour signaler la déconnexion d'un utilisateur quand il quitte la page ou navigue en arrière
 window.addEventListener('beforeunload', function() {
+    // On récupère l'id du document dans l'url
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const idDocument = urlParams.get('idDocument');
+
     // Déconnexion du socket lorsque l'utilisateur quitte la page ou navigue en arrière
-    socket.emit('leave', document.getElementById('idCreateur').value);
+    socket.emit('leaveDocument',idDocument , document.getElementById('idCreateur').value);
     socket.disconnect();
 });
 
@@ -138,8 +152,13 @@ async function setIdCreateur() {
         // On verifie si l'utilisateur a accès au document sinon on le redirige vers le dashboard
         checkAcces();
 
+        // On récupère l'id du document dans l'url
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const idDocument = urlParams.get('idDocument');
+
         // On notifie le serveur de la connexion d'un utilisateur
-        socket.emit('join', document.getElementById('idCreateur').value);
+        socket.emit('joinDocument',idDocument , document.getElementById('idCreateur').value);
     })
     .catch(error => {
         console.error(error); // Gestion des erreurs
@@ -182,6 +201,7 @@ async function getUtilisateurConnecte(){
 
 // On récupère tous les utilisateurs et on les affiche
 async function afficherUtilisateurs(listeId){
+    console.log("Affichage des utilisateurs : " + listeId);
     // On vide la liste des utilisateurs
     let listeUtilisateurs = document.getElementById('utilisateurs');
     listeUtilisateurs.innerHTML = `<div class="icon-container"><i class="bi bi-people"></i></div>`; // On affiche l'icône des utilisateurs
@@ -193,8 +213,12 @@ async function afficherUtilisateurs(listeId){
 
         // On récupère les utilisateurs connectés en parcourant la liste des id
         idArray.forEach(async Element => {
+            
             // On vérifie si l'id n'est pas vide
             if (Element != "") {
+                // On recupere le nb d'occurence de l'element dans l'array
+                const occurrences = idArray.filter(item => item === Element).length;
+                console.log("Occurences : " + occurrences);
                 console.log("Id : " + Element);
                 // On récupère l'utilisateur
                 let user = await getUserById(Element);
@@ -223,9 +247,11 @@ async function afficherUtilisateurs(listeId){
                         `</div>
                     </div>
                 </div>`;
-
-                // On rajoute l'utilisateur connecté dans l'html
-                listeUtilisateurs.innerHTML += content;
+                
+                // On rajoute l'utilisateur connecté dans l'html si il n'est pas déjà présent
+                if (!listeUtilisateurs.innerHTML.includes(content)) {
+                    listeUtilisateurs.innerHTML += content;
+                }
             }
         });
     }
@@ -260,10 +286,10 @@ async function retirerAcces(idCompte){
             afficherToast("L'utilisateur " + idCompte + " a bien été retiré", 'success');
 
             // On notifie le serveur d'un changement dans un document
-            socket.emit('changeDocument');
+            socket.emit('changeDocument', idDocument);
 
             // On notifie le serveur de la déconnexion d'un utilisateur
-            socket.emit('leave', idCompte);
+            socket.emit('leaveDocument',idDocument , idCompte);
         });
 }
 
@@ -289,7 +315,7 @@ async function donnerAcces(idCompte){
                 afficherToast("L'utilisateur " + idCompte + " a bien été ajouté", 'success');
 
                 // On notifie le serveur d'un changement dans un document
-                socket.emit('changeDocument');
+                socket.emit('changeDocument', idDocument);
             });
     } else {
         // On affiche un message d"erreur"

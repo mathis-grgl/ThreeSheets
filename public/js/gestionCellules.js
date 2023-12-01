@@ -7,7 +7,7 @@ socket.on('modificationTexte', (data) => {
     const cell = document.getElementById(data.idCellule); // Récupérer la cellule modifiée
 
     cell.textContent = data.nouveauTexte; // Modifier le texte de la cellule
-    //console.log("Recoit Cell : " + data.idCellule + " -- Modif : " + data.nouveauTexte);
+    console.log("Recoit Cell : " + data.idCellule + " -- Modif : " + data.nouveauTexte);
 });
 
 // On écoute les événements de modification de texte
@@ -45,8 +45,13 @@ document.addEventListener('keydown', function(event) {
         fileName.contentEditable = 'false';
         fileNameText = fileName.textContent; // On récupère le nouveau nom du fichier
 
+        // On récupère l'id du document dans l'url
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const idDocument = urlParams.get('idDocument');
+
         // On notifie le serveur de la modification du titre pour l'autre utilisateur
-        socket.emit('modificationTitre', { nouveauTitre: fileNameText });
+        socket.emit('modificationTitre', idDocument, { nouveauTitre: fileNameText });
     } else if (event.key === 'Escape') {
         // On désactive l'édition du nom du fichier
         fileName.contentEditable = 'false';
@@ -61,8 +66,14 @@ function onTextChange(id) {
     // On récupère la cellule modifiée
     const cell = document.getElementById(id);
     console.log("Envoi Cell : " + id + " -- Modif : " + cell.textContent);
+
+    // On récupère l'id du document dans l'url
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const idDocument = urlParams.get('idDocument');
+
     // Émettre un événement pour signaler la modification de texte
-    socket.emit('modificationTexte', { idCellule: id, nouveauTexte: cell.textContent });
+    socket.emit('modificationTexte', idDocument, { idCellule: id, nouveauTexte: cell.textContent });
 }
 
 
@@ -275,6 +286,11 @@ function notifyServer(idCell) {
         textAlign = "text-start";
     }
 
+    // On récupère l'id du document dans l'url
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const idDocument = urlParams.get('idDocument');
+
     // Émettre un événement pour signaler la modification de style
-    socket.emit('modificationStyle', { idCellule: idCell, fontWeight: cell.style.fontWeight, fontStyle: cell.style.fontStyle, textDecoration: cell.style.textDecoration, color: cell.style.color, backgroundColor: cell.style.backgroundColor, textAlign: textAlign });
+    socket.emit('modificationStyle', idDocument, { idCellule: idCell, fontWeight: cell.style.fontWeight, fontStyle: cell.style.fontStyle, textDecoration: cell.style.textDecoration, color: cell.style.color, backgroundColor: cell.style.backgroundColor, textAlign: textAlign });
 }
