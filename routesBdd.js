@@ -7,13 +7,27 @@ const router = express.Router();
 const db = require('./public/js/gestionBdd');
 
  // On défini la toute pour la création d'un document dans la db
- router.post("/create", (req, res) => {
-    const { titre, idCreateur } = req.body;
-    db.createFile(titre, idCreateur, (err) => {
+ router.post("/createFile", (req, res) => {
+    const { titre, id } = req.body;
+    db.createFile(titre, id, (err) => {
         if (err) {
             res.status(500).send('Erreur lors de la création du document.');
         } else {
-            res.status(200).send('Document créé/modifié avec succès !');
+            res.status(200).send('Document créé avec succès !');
+        }
+    });
+});
+
+// On défini la route pour la modification d'un document dans la db
+router.post("/modifyFile", (req, res) => {
+
+    console.log("Document : " + req.body.id + " " + req.body.titre);
+
+    db.modifyFile(req.body.id, req.body.titre, (err) => {
+        if (err) {
+            res.status(500).send('Erreur lors de la modification du document.');
+        } else {
+            res.status(200).send('Document modifié avec succès !');
         }
     });
 });
@@ -117,17 +131,17 @@ router.delete("/delete/:id", (req, res) => {
     });
 });
 
-// On défini la route pour la récupération de l'idCreateur
-router.get('/getIdCreateur', (req, res) => {
+// On défini la route pour la récupération de l'idUser
+router.get('/getIdUser', (req, res) => {
     const sessionData = req.session; // Accès aux données de session
 
-    // FOn récupère l'id du créateur avec son email
-    db.getIdByEmail(sessionData.email, (err, idCreateur) => {
+    // On récupère l'id de l'utilisateur avec son email
+    db.getIdByEmail(sessionData.email, (err, idUser) => {
         if (err) {
             res.status(500).send('Erreur lors de la récupération de l\'ID créateur');
             return;
         }
-        res.status(200).json({ idCreateur: idCreateur });
+        res.status(200).json({ idUser: idUser });
     });
 });
 

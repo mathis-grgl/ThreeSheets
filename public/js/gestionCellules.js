@@ -1,4 +1,5 @@
 const fileName = document.getElementById('file-name'); // Nom du fichier
+const oldFileName = document.getElementById('old-file-name'); // Ancien nom du fichier
 const editButton = document.querySelector('.edit-button'); // Bouton d'édition du nom du fichier
 let fileNameText = fileName.textContent; // Texte du nom du fichier
 
@@ -36,6 +37,9 @@ socket.on('modificationStyle', (data) => {
 editButton.addEventListener('click', function() {
     fileName.contentEditable = 'true'; // On active l'édition du nom du fichier
     fileName.focus();
+
+    // On récupère l'ancien nom du fichier
+    oldFileName.value = fileName.textContent + ".xlsx";
 });
 
 // On regarde si on appuie sur la touche entrée ou echap

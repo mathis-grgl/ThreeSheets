@@ -137,6 +137,8 @@ async function createXLSXFile() {
 async function telechargerFichier() {
     // On crée le fichier
     const blob = await createXLSXFile();
+
+    fileNameText = document.getElementById('file-name').textContent; // On récupère le nom du fichier
     
     // On enregistre le fichier sur notre pc
     const url = window.URL.createObjectURL(blob);
@@ -166,6 +168,8 @@ async function fermerFichier(){
 // Enregistre le fichier sur le serveur
 async function enregistrerSurServeur(blob) {
     try {
+        fileNameText = document.getElementById('file-name').textContent; // On récupère le nom du fichier
+
         // Si le titre est "Nouvelle Feuille", on génére un identifiant aléatoire de 7 caractères
         if (fileNameText === "Nouvelle feuille") {
             const randomId = Math.random().toString(36).substring(7);
@@ -178,6 +182,8 @@ async function enregistrerSurServeur(blob) {
         // On crée un objet FormData avec le fichier xlsx
         const formData = new FormData();
         formData.append('file', blob, fileNameText+'.xlsx');
+        const oldFileName = document.getElementById('old-file-name').value;
+        formData.append('oldFileName', oldFileName);
 
         // Envoi du fichier au serveur
         const response = await fetch('/upload', {
@@ -189,20 +195,19 @@ async function enregistrerSurServeur(blob) {
             console.log('Fichier enregistré sur le serveur !');
 
             // On récupère l'id du créateur
-            const idCreateur = document.getElementById('idCreateur').value;
-
-            // On récupère le titre du document
-            const titre = document.getElementById('file-name').textContent;
+            const idCreateur = document.getElementById('idUser').value;
 
             // On crée le document dans la db
-            await createDocumentInDb(titre, idCreateur);
+            await createDocumentInDb(fileNameText, idCreateur);
         } else {
             // Afficher une alerte d'erreur
             afficherToast("Erreur lors de l\'enregistrement du fichier sur le serveur.", 'danger');
+
+            throw new Error('Erreur lors de l\'enregistrement du fichier sur le serveur');
         }
     } catch (error) {
         // Afficher une alerte d'erreur
-        afficherToast("Erreur lors de l\'envoi du fichier sur le serveur.", 'danger');
+        afficherToast(error.message, 'danger');
     }
 }
 
@@ -224,6 +229,9 @@ async function getLastFile() {
 
             // On rajouter l'id du document dans l'url
             window.history.pushState(null, null, `?idDocument=${idDocument}`);
+
+            // On set l'id du créateur du document
+            document.getElementById('idCreateur').value = data.idCreateur;
         })
         .catch(error => {
             console.error(error); // Gestion des erreurs
@@ -258,9 +266,9 @@ function afficherToast(message, type) {
 // Créer un document dans la base de données
 async function createDocumentInDb(titre, idCreateur) {
     // On crée un objet avec les données à envoyer
-    const requestData = {
+    let requestData = {
         titre: titre,
-        idCreateur: idCreateur
+        id: idCreateur
     };
 
     // On crée les options de la requête
@@ -272,9 +280,28 @@ async function createDocumentInDb(titre, idCreateur) {
         body: JSON.stringify(requestData)
     };
 
+    // On récupère l'id du document dans l'url
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const idDocument = urlParams.get('idDocument');
+
+    // Si il y a un id dans l'url, on modifie le document
+    let requestUrl = '/createFile';
+    if (idDocument) {
+        // On modifie le document dans la db
+        requestUrl = `/modifyFile`;
+
+        // On change les données à envoyer
+        requestData = {
+            titre: titre,
+            id: idDocument
+        };
+    }
+
+    // On crée la requête
     try {
         // On envoie la requête au serveur
-        const response = await fetch('/create', requestOptions);
+        const response = await fetch(requestUrl, requestOptions);
         if (!response.ok) {
             throw new Error('Erreur lors de la création du document');
         }
@@ -315,6 +342,9 @@ async function loadNameFile() {
             const data = await response.json();
             const titre = data.titre;
             const url = `/files/${titre}.xlsx`;
+
+            // On set l'id du créateur du document
+            document.getElementById('idCreateur').value = data.idCreateur;
 
             // Effectuer une requête pour récupérer le fichier
             const fileResponse = await fetch(url);

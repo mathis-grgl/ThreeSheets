@@ -23,10 +23,10 @@ socket.on('changeDocument', () => {
 async function afficherDocuments() {
     try {
         // On récupère l'id du créateur
-        const id = await getIdCreateur();
+        const id = await getIdUser();
 
         // Récupération de tous les documents
-        const response = await fetch('/getSharedDocumentsByUser/' + id.idCreateur.idCompte);
+        const response = await fetch('/getSharedDocumentsByUser/' + id.idUser.idCompte);
         if (!response.ok) {
             throw new Error('Erreur lors de la récupération des documents');
         }
@@ -98,9 +98,9 @@ async function supprimerDocument(idDocument) {
     }
 }
 
-// On récupère l'id du créateur
-async function getIdCreateur(){
-    return fetch('/getIdCreateur')
+// On récupère l'id de l'utilisateur connecté
+async function getIdUser(){
+    return fetch('/getIdUser')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Erreur de réseau');

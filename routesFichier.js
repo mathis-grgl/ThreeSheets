@@ -41,7 +41,16 @@ const upload = multer({ storage: storage });
 
 // On définit la route pour l'upload du fichier .xlsx
 router.post("/upload", upload.single('file'), (req, res) => {
-    res.status(200).send('Fichier enregistré avec succès !');
+    const oldFileName = req.body.oldFileName;
+
+    if (oldFileName !== "") {
+        // Supprimer le fichier existant
+        fs.unlink(path.join(__dirname, 'public', 'files', oldFileName), (err) => {
+            res.status(200).send('Fichier enregistré avec succès !');
+        });
+    } else {
+        res.status(200).send('Fichier enregistré avec succès !');
+    }
 });
 
 // On défini la route pour le téléchargement du fichier .xlsx

@@ -41,6 +41,10 @@ function createFile(titre, idCreateur, callback) {
     });
 }
 
+function modifyFile(idDocument, titre, callback) {
+    db.run('UPDATE document SET titre = ? WHERE idDocument = ?', [titre, idDocument], callback);
+}
+
 function getFileById(idDocument, callback) {
     db.get('SELECT * FROM document WHERE idDocument = ?', [idDocument], callback);
 }
@@ -91,4 +95,4 @@ function hasAccess(idDocument, idCompte, callback) {
     db.get('SELECT * FROM PARTAGE WHERE idDocument = ? AND idCompte = ?', [idDocument, idCompte], callback);
 }
 
-module.exports = { getUserByEmailAndPassword, createUser, createFile, getFileById, editFile, deleteFile, getIdByEmail, getAllFiles, getUserByEmail, getUserById, getAllUsers, getSharedDocumentsByUser, shareDocument, deleteShare, hasAccess, getLastFile};
+module.exports = { getUserByEmailAndPassword, createUser, createFile, getFileById, editFile, deleteFile, getIdByEmail, getAllFiles, getUserByEmail, getUserById, getAllUsers, getSharedDocumentsByUser, shareDocument, deleteShare, hasAccess, getLastFile, modifyFile};

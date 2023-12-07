@@ -154,14 +154,4 @@ router.post("/submit_inscription", (req, res) => {
     });
 });
 
-
-
-
-// Route pour clear les cookies (useless)
-router.get('/clear_cookies', function(req, res){
-        res.clearCookie('id');
-        res.redirect('/index');
-     });
-
-
 module.exports = router;

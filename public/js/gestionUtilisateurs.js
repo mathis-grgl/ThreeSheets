@@ -24,7 +24,7 @@ window.addEventListener('DOMContentLoaded', () => {
 // On écoute les événements de connexion d'un utilisateur au chargement de la page
 window.addEventListener('pageshow', (event) => {
     // On set l'id du créateur dans la feuille de calcul et on charge le nom du fichier si'il existe
-    setIdCreateur(); 
+    setIdUser(); 
     loadNameFile();
 
     // On récupère l'id du document dans l'url
@@ -33,7 +33,7 @@ window.addEventListener('pageshow', (event) => {
     const idDocument = urlParams.get('idDocument');
 
     // On notifie le serveur de la connexion d'un utilisateur
-    socket.emit('joinDocument', idDocument, document.getElementById('idCreateur').value);
+    socket.emit('joinDocument', idDocument, document.getElementById('idUser').value);
 
     // On affiche les utilisateurs connectés
     //afficherUtilisateurs();
@@ -47,7 +47,7 @@ socket.on('deconnect', () => {
     const urlParams = new URLSearchParams(queryString);
     const idDocument = urlParams.get('idDocument');
 
-    socket.emit('leaveDocument', idDocument, document.getElementById('idCreateur').value);
+    socket.emit('leaveDocument', idDocument, document.getElementById('idUser').value);
 });
 
 // On écoute les événements de connexion d'un utilisateur
@@ -60,7 +60,7 @@ socket.on('newUser', (data) => {
 
 // On écoute les événements d'un utilisateur qui quitte
 socket.on('leavingUser', (data) => {
-    if (data.userId != document.getElementById('idCreateur').value) {
+    if (data.userId != document.getElementById('idUser').value) {
         afficherToast("L'utilisateur " + data.userId + " vient de se déconnecter", 'danger');
         afficherUtilisateurs(data.connectedUsers);
     } else {
@@ -77,7 +77,7 @@ window.addEventListener('beforeunload', function() {
     const idDocument = urlParams.get('idDocument');
 
     // Déconnexion du socket lorsque l'utilisateur quitte la page ou navigue en arrière
-    socket.emit('leaveDocument',idDocument , document.getElementById('idCreateur').value);
+    socket.emit('leaveDocument',idDocument , document.getElementById('idUser').value);
     socket.disconnect();
 });
 
@@ -138,16 +138,16 @@ btnPartager.addEventListener('click', async () => {
 });
 
 
-// On set l'id du créateur dans la feuille de calcul
-async function setIdCreateur() {
-    // On récupère l'id du créateur
-    getIdCreateur()
+// On set l'id de l'utilisateur connecté dans la feuille de calcul
+async function setIdUser() {
+    // On récupère l'id de l'utilisateur connecté
+    getIdUser()
     .then(async data => {
-        // On récupère l'idCreateur
-        const idCreateur = document.getElementById('idCreateur');
+        // On récupère l'idUser
+        const idUser = document.getElementById('idUser');
 
         // On set l'id du créateur dans la feuille de calcul
-        idCreateur.value = data.idCreateur.idCompte;
+        idUser.value = data.idUser.idCompte;
 
         // On verifie si l'utilisateur a accès au document sinon on le redirige vers le dashboard
         checkAcces();
@@ -158,7 +158,7 @@ async function setIdCreateur() {
         const idDocument = urlParams.get('idDocument');
 
         // On notifie le serveur de la connexion d'un utilisateur
-        socket.emit('joinDocument',idDocument , document.getElementById('idCreateur').value);
+        socket.emit('joinDocument',idDocument , document.getElementById('idUser').value);
     })
     .catch(error => {
         console.error(error); // Gestion des erreurs
@@ -167,8 +167,8 @@ async function setIdCreateur() {
 }
 
 // On récupère l'id du créateur
-async function getIdCreateur(){
-    return await fetch('/getIdCreateur')
+async function getIdUser(){
+    return await fetch('/getIdUser')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Erreur de réseau');
@@ -239,7 +239,7 @@ async function afficherUtilisateurs(listeId){
                             <p style="font-size: 28px;">${user.pseudo}</p>`
 
                             // On retire la possibilité de se retirer l'accès à soi-même
-                            if (user.idCompte != document.getElementById('idCreateur').value) {
+                            if (user.idCompte != document.getElementById('idCreateur').value && user.idCompte != document.getElementById('idUser').value) {
                                 content += `<button class="btn btn-primary" onclick="retirerAcces(${user.idCompte})">Retirer l'accès</button>`
                             }
 
@@ -356,7 +356,7 @@ async function hasAccess() {
     const idDocument = urlParams.get('idDocument');
 
     // On recupère l'id de l'utilisateur connecté
-    const idCompte = document.getElementById('idCreateur').value;
+    const idCompte = document.getElementById('idUser').value;
     console.log("idCompte : " + idCompte);
 
     // On verifie si l'utilisateur a accès au document

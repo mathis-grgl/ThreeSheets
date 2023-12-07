@@ -12,6 +12,9 @@
 </head>
 
 <body>
+    <!-- Récupération de l'id de l'utilisateur connecté -->
+    <input type="hidden" id="idUser" value=""></input>
+
     <!-- Récupération de l'id du créateur du fichier -->
     <input type="hidden" id="idCreateur" value=""></input>
 
@@ -26,6 +29,7 @@
                 <div class="d-flex flex-column align-items-start">
                     <!-- Titre du fichier -->
                     <div class="navbar-text">
+                        <input id="old-file-name" type="hidden" value=""></input>
                         <h5 id="file-name" contenteditable="false">Nouvelle feuille</h5>
                         <i class="bi bi-pencil-square edit-button"></i>
                     </div>
