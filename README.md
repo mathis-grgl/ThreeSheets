@@ -1,5 +1,7 @@
 # ThreeSheets
 Projet de DP M1 2023
+Lien du rapport : https://docs.google.com/document/d/1-rmvVEUu07bq_IHPQDr6nb4ojKGN5Bl2FFr5qBcOZUQ/edit?usp=sharing
+Lien de la documentation technique : https://docs.google.com/document/d/1BtZseVBbS6DA_T7FcCcALm9ylb35UAg2LNbuCxUFZ1c/edit?usp=sharing
 
 ## Structure du projet
 ### Architecture
