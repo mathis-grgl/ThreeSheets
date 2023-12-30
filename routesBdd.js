@@ -11,7 +11,7 @@ const db = require('./public/js/gestionBdd');
     const { titre, id } = req.body;
     db.createFile(titre, id, (err) => {
         if (err) {
-            res.status(500).send('Erreur lors de la création du document.');
+            res.status(500).send('Erreur lors de la création du document. ' + err);
         } else {
             res.status(200).send('Document créé avec succès !');
         }

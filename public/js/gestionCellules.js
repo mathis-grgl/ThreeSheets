@@ -2,6 +2,10 @@ const fileName = document.getElementById('file-name'); // Nom du fichier
 const oldFileName = document.getElementById('old-file-name'); // Ancien nom du fichier
 const editButton = document.querySelector('.edit-button'); // Bouton d'édition du nom du fichier
 let fileNameText = fileName.textContent; // Texte du nom du fichier
+let idCell = 0; // Identifiant de la cellule cliquée
+
+// On selectionne la première cellule
+selectCellContents(document.getElementById('cell_1_1'));
 
 // On écoute les événements de modification de texte
 socket.on('modificationTexte', (data) => {
@@ -16,7 +20,7 @@ socket.on('modificationTitre', (data) => {
     fileName.textContent = data.nouveauTitre; // Modifier le titre du fichier
 
     // On actualise la liste des documents pour les utilisateurs connectés
-    socket.emit('changeDocument');
+    socket.emit('modificationTitre');
 });
 
 // On écoute les événements de modification de style
@@ -31,6 +35,11 @@ socket.on('modificationStyle', (data) => {
     cell.style.backgroundColor = data.backgroundColor;
     cell.classList.remove('text-start', 'text-center', 'text-end');
     cell.classList.add(data.textAlign);
+});
+
+// Si le créateur d'un document le supprime, on redirige vers le dashboard
+socket.on('changeDocument', () => {
+    window.location.href = '/dashboard';
 });
 
 // On ecoute le click sur le bouton d'edition du nom du fichier
@@ -106,7 +115,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // On gere le click sur une cellule
     const cells = document.querySelectorAll('.spreadsheet td[contenteditable="false"]');
-    let idCell = 0;
 
     cells.forEach(cell => {
         let clicks = 0;
@@ -133,29 +141,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
-
-    function selectCellContents(cell) {
-        // On remet la couleur de fond de la ligne et de la colonne de la cellule cliquée à table-secondary
-        let elements = document.querySelectorAll('.table-secondary');
-        elements.forEach(element => {
-            element.style.backgroundColor = 'lightgray';
-        });
-
-        // Ajoute la classe 'selected-cell' à la cellule actuelle
-        cell.classList.add('selected-cell');
-
-        // On récupère l'identifiant de la cellule cliquée
-        idCell = cell.id;
-
-        const rowIndex = (cell.parentNode.rowIndex) -1; // Indice de colonne de la cellule cliquée
-        const columnIndex = cell.cellIndex; // Indice de la colonne de la cellule cliquée
-        
-        // On change la couleur de fond de la colonne de la cellule cliquée
-        document.getElementById("cell_" + rowIndex.toString().replace(/\s/g, "") + "_0").style.backgroundColor = 'lightblue';
-
-        // On change la couleur de fond de la ligne de la cellule cliquée
-        document.getElementById("cell_0_" + columnIndex.toString().replace(/\s/g, "")).style.backgroundColor = 'lightblue';
-    }
 
     function enterCell(cell) {
         // On active l'édition de la cellule
@@ -274,6 +259,30 @@ document.addEventListener('DOMContentLoaded', function () {
         notifyServer(idCell);
     });
 });
+
+// Fonction pour selectionner une cellule
+function selectCellContents(cell) {
+    // On remet la couleur de fond de la ligne et de la colonne de la cellule cliquée à table-secondary
+    let elements = document.querySelectorAll('.table-secondary');
+    elements.forEach(element => {
+        element.style.backgroundColor = 'lightgray';
+    });
+
+    // Ajoute la classe 'selected-cell' à la cellule actuelle
+    cell.classList.add('selected-cell');
+
+    // On récupère l'identifiant de la cellule cliquée
+    idCell = cell.id;
+
+    const rowIndex = (cell.parentNode.rowIndex) -1; // Indice de colonne de la cellule cliquée
+    const columnIndex = cell.cellIndex; // Indice de la colonne de la cellule cliquée
+    
+    // On change la couleur de fond de la colonne de la cellule cliquée
+    document.getElementById("cell_" + rowIndex.toString().replace(/\s/g, "") + "_0").style.backgroundColor = 'lightblue';
+
+    // On change la couleur de fond de la ligne de la cellule cliquée
+    document.getElementById("cell_0_" + columnIndex.toString().replace(/\s/g, "")).style.backgroundColor = 'lightblue';
+}
 
 // On notifie le serveur de la modification de style pour l'autre utilisateur
 function notifyServer(idCell) {

@@ -157,7 +157,7 @@ async function enregistrerFichier(){
     const blob = await createXLSXFile();
 
     // On enregistre le fichier sur le serveur
-    enregistrerSurServeur(blob);
+    await enregistrerSurServeur(blob);
 }
 
 /* Ferme le fichier et redirige vers le dashboard */
@@ -214,7 +214,7 @@ async function enregistrerSurServeur(blob) {
 // On recupère le dernier fichier dans la db
 async function getLastFile() {
     // On récupère le dernier fichier dans la db
-    fetch('/getLastFile')
+    await fetch('/getLastFile')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Erreur de réseau');
@@ -316,7 +316,7 @@ async function createDocumentInDb(titre, idCreateur) {
         afficherToast(responseData, 'success');
 
         // On récupère le dernier fichier dans la db et on met à jour l'url avec l'id du document
-        getLastFile();
+        await getLastFile();
     } catch (error) {
         // Afficher une alerte d'erreur
         afficherAlerte(error.message || 'Erreur inconnue', 'danger');

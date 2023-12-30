@@ -22,10 +22,16 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // On écoute les événements de connexion d'un utilisateur au chargement de la page
-window.addEventListener('pageshow', (event) => {
+window.addEventListener('pageshow', async (event) => {
     // On set l'id du créateur dans la feuille de calcul et on charge le nom du fichier si'il existe
-    setIdUser(); 
-    loadNameFile();
+    await setIdUser(); 
+    await loadNameFile();
+
+    // On crée une promesse pour setIdUser() et loadNameFile()
+    const promises = [setIdUser(), loadNameFile()];
+
+    // On attend que les deux promesses soient résolues
+    await Promise.all(promises);
 
     // On récupère l'id du document dans l'url
     const queryString = window.location.search;
@@ -35,10 +41,10 @@ window.addEventListener('pageshow', (event) => {
     // On notifie le serveur de la connexion d'un utilisateur
     socket.emit('joinDocument', idDocument, document.getElementById('idUser').value);
 
-    // On affiche les utilisateurs connectés
-    //afficherUtilisateurs();
-    cacherPopUpAttente(); // Masquer le pop-up d'attente
+    // On masque le pop-up d'attente   
+    cacherPopUpAttente(); 
 });
+
     
 // On envoie un événement au serveur pour signaler la déconnexion d'un utilisateur
 socket.on('deconnect', () => {
@@ -150,7 +156,7 @@ async function setIdUser() {
         idUser.value = data.idUser.idCompte;
 
         // On verifie si l'utilisateur a accès au document sinon on le redirige vers le dashboard
-        checkAcces();
+        await checkAcces();
 
         // On récupère l'id du document dans l'url
         const queryString = window.location.search;
@@ -332,7 +338,7 @@ async function checkAcces() {
 
     // Si idDocument est null c'est que c'est un nouveau document donc on veut rester sur la page
     if (idDocument != null) {
-        hasAccess()
+        await hasAccess()
             .then(async data => {
                 // On verifie si l'utilisateur a accès au document sinon on le redirige vers le dashboard
                 if (data.hasAccess == undefined || data.hasAccess == null) {
@@ -345,7 +351,7 @@ async function checkAcces() {
             });
     } else {
         // Si c'est un nouveau fichier, on l'enregistre tout de suite
-        enregistrerFichier()
+        await enregistrerFichier()
     }
 }
 

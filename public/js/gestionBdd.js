@@ -29,16 +29,29 @@ function getAllUsers(callback) {
 
 /* Gestion des documents */
 
-// Requête qu icrée un document et le partage avec le créateur
+// Requête qui créer un document et le partage avec le créateur
 function createFile(titre, idCreateur, callback) {
-    db.run('INSERT INTO DOCUMENT (titre, idCreateur) VALUES (?, ?)', [titre, idCreateur], function(err) {
-        if (err) {
-            callback(err);
-        } else {
-            const lastId = this.lastID; // Récupère l'id du dernier enregistrement inséré
-            db.run('INSERT INTO PARTAGE (idDocument, idCompte) VALUES (?, ?)', [lastId, idCreateur], callback);
+    db.run(
+        `INSERT INTO DOCUMENT (titre, idCreateur)
+        SELECT ?, ? 
+        WHERE NOT EXISTS (
+            SELECT 1 FROM DOCUMENT WHERE titre = ? AND idCreateur = ?
+        )`,
+        [titre, idCreateur, titre, idCreateur],
+        function(err) {
+            if (err) {
+                callback(err);
+            } else {
+                if (this.changes === 0) {
+                    // Aucune insertion n'a été effectuée car le document existe déjà
+                    callback(new Error('Le document existe déjà pour ce créateur avec ce titre.'));
+                } else {
+                    const lastId = this.lastID; // Récupère l'id du dernier enregistrement inséré
+                    db.run('INSERT INTO PARTAGE (idDocument, idCompte) VALUES (?, ?)', [lastId, idCreateur], callback);
+                }
+            }
         }
-    });
+    );
 }
 
 function modifyFile(idDocument, titre, callback) {
